@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Morphing App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #e1e8ed;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #95a5a6;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area.dragover {
+            border-color: #27ae60;
+            background-color: #f0f8f4;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #95a5a6;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .upload-subtext {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .tier-section {
+            margin: 30px 0;
+        }
+
+        .tier-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .tier-slider-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px 20px;
+            margin: 20px 0;
+        }
+
+        .tier-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .tier-slider:hover {
+            opacity: 1;
+        }
+
+        .tier-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #27ae60;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tier-slider::-webkit-slider-thumb:hover {
+            background: #229954;
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+        }
+
+        .tier-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #27ae60;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tier-slider::-moz-range-thumb:hover {
+            background: #229954;
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+        }
+
+        .tier-slider:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .tier-slider:disabled::-webkit-slider-thumb {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .tier-slider:disabled::-moz-range-thumb {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .tier-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 12px;
+        }
+
+        .tier-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .tier-label.milestone {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .current-tier {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #27ae60;
+        }
+
+        .current-tier-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+
+        .current-tier-description {
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+
+        .process-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            min-width: 200px;
+        }
+        
+        .process-btn:hover:not(:disabled) {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .process-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .status-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .status-area.show {
+            display: block;
+        }
+
+        .status-area.processing {
+            background: #fef9e7;
+            border: 1px solid #f39c12;
+            color: #f39c12;
+        }
+        
+        .status-area.success {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            color: #27ae60;
+        }
+        
+        .status-area.error {
+            background: #fadbd8;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .result-area {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .reset-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(149, 165, 166, 0.3);
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .tier-slider-container {
+                padding: 20px 15px;
+            }
+            
+            .tier-labels {
+                padding: 0 8px;
+            }
+            
+            .current-tier {
+                margin-top: 15px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔥 PSL Accurate Morph</div>
+        <div class="subtitle">Transform your face with AI-powered morphing</div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Drop your image here or click to browse</div>
+            <div class="upload-subtext">Supports PNG, JPG, JPEG, WebP (max 16MB)</div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <div id="previewArea" style="display: none;">
+            <img id="previewImage" class="preview-image" alt="Preview">
+        </div>
+        
+        <div class="tier-section">
+            <div class="tier-title">Choose Your Transformation Tier</div>
+            <div class="tier-slider-container">
+                <input type="range"
+                       id="tierSlider"
+                       class="tier-slider"
+                       min="10"
+                       max="25"
+                       value="10"
+                       step="1"
+                       disabled>
+                <div class="tier-labels">
+                    <div class="tier-label milestone">+1 Tier</div>
+                    <div class="tier-label milestone">+2 Tier</div>
+                    <div class="tier-label milestone">Chad</div>
+                </div>
+                <div class="current-tier" id="currentTier">
+                    <div class="current-tier-name">+1 Tier</div>
+                    <div class="current-tier-description">Subtle Enhancement</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="process-btn" id="processBtn" disabled>
+            🚀 Start Transformation
+        </button>
+        
+        <div class="status-area" id="statusArea">
+            <div id="statusMessage">Processing your image...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="result-area" id="resultArea">
+            <h3>🎉 Transformation Complete!</h3>
+            <img id="resultImage" class="result-image" alt="Result">
+            <div>
+                <a href="#" class="download-btn" id="downloadBtn">📥 Download Result</a>
+                <button class="reset-btn" id="resetBtn">🔄 Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let selectedDenoise = 0.10; // Default to 10%
+        let currentPromptId = null;
+
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImage = document.getElementById('previewImage');
+        const tierSlider = document.getElementById('tierSlider');
+        const currentTier = document.getElementById('currentTier');
+        const processBtn = document.getElementById('processBtn');
+        const statusArea = document.getElementById('statusArea');
+        const statusMessage = document.getElementById('statusMessage');
+        const progressFill = document.getElementById('progressFill');
+        const resultArea = document.getElementById('resultArea');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Tier mapping
+        const tierMapping = {
+            10: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            11: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            12: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            13: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            14: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            15: { name: '+2 Tier', description: 'Moderate Transform' },
+            16: { name: '+2 Tier', description: 'Moderate Transform' },
+            17: { name: '+2 Tier', description: 'Moderate Transform' },
+            18: { name: '+2 Tier', description: 'Moderate Transform' },
+            19: { name: '+2 Tier', description: 'Moderate Transform' },
+            20: { name: '+2 Tier', description: 'Moderate Transform' },
+            21: { name: 'Chad', description: 'Maximum Power' },
+            22: { name: 'Chad', description: 'Maximum Power' },
+            23: { name: 'Chad', description: 'Maximum Power' },
+            24: { name: 'Chad', description: 'Maximum Power' },
+            25: { name: 'Chad', description: 'Maximum Power' }
+        };
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            // Validate file type
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (PNG, JPG, JPEG, WebP)');
+                return;
+            }
+
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                alert('File size must be less than 16MB');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewArea.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Enable tier slider
+            tierSlider.disabled = false;
+
+            // Enable process button
+            processBtn.disabled = false;
+
+            // Update upload area
+            uploadArea.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <div class="upload-text">Image uploaded successfully!</div>
+                <div class="upload-subtext">Click to change image</div>
+            `;
+        }
+
+        // Tier slider handling
+        tierSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            selectedDenoise = value / 100; // Convert to decimal (10-25 becomes 0.10-0.25)
+            
+            const tier = tierMapping[value];
+            if (tier) {
+                document.querySelector('.current-tier-name').textContent = tier.name;
+                document.querySelector('.current-tier-description').textContent = tier.description;
+            }
+        });
+
+        // Process button
+        processBtn.addEventListener('click', async function() {
+            if (!selectedFile || !selectedDenoise) return;
+            
+            this.disabled = true;
+            showStatus('Uploading image...', 'processing');
+            
+            try {
+                // Upload file with denoise value
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('denoise', selectedDenoise.toString());
+                
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadResult = await uploadResponse.json();
+                
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.error);
+                }
+                
+                // Start processing
+                showStatus('Starting transformation...', 'processing');
+                
+                const processResponse = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: uploadResult.filename,
+                        denoise: selectedDenoise
+                    })
+                });
+                
+                const processResult = await processResponse.json();
+                
+                if (!processResult.success) {
+                    throw new Error(processResult.error);
+                }
+                
+                currentPromptId = processResult.prompt_id;
+                
+                // Start polling for status
+                pollStatus();
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                processBtn.disabled = false;
+            }
+        });
+
+        async function pollStatus() {
+            if (!currentPromptId) return;
+            
+            try {
+                const response = await fetch(`/status/${currentPromptId}`);
+                const result = await response.json();
+                
+                if (result.complete) {
+                    showStatus('Transformation complete! Preparing download...', 'success');
+                    
+                    // Get result
+                    const resultResponse = await fetch(`/result/${currentPromptId}`);
+                    
+                    if (resultResponse.ok) {
+                        const blob = await resultResponse.blob();
+                        const imageUrl = URL.createObjectURL(blob);
+                        
+                        // Force refresh by adding timestamp to prevent caching
+                        const timestamp = Date.now();
+                        const tierName = tierMapping[Math.round(selectedDenoise * 100)]?.name || 'custom';
+                        const filename = `morphed_${tierName.replace(/\s+/g, '_')}_${timestamp}.png`;
+                        
+                        // Clear any previous result to ensure fresh display
+                        if (resultImage.previousSrc) {
+                            URL.revokeObjectURL(resultImage.previousSrc);
+                        }
+                        
+                        // Show result (don't add query params to blob URLs)
+                        resultImage.src = imageUrl;
+                        resultImage.onload = function() {
+                            // Force browser to refresh the image display
+                            this.style.display = 'none';
+                            this.offsetHeight; // Trigger reflow
+                            this.style.display = '';
+                        };
+                        
+                        downloadBtn.href = imageUrl;
+                        downloadBtn.download = filename;
+                        
+                        // Store reference for cleanup
+                        resultImage.previousSrc = imageUrl;
+                        
+                        hideStatus();
+                        resultArea.classList.add('show');
+                        
+                        // Re-enable process button for new runs
+                        processBtn.disabled = false;
+                    } else {
+                        throw new Error('Failed to retrieve result');
+                    }
+                } else {
+                    showStatus(result.message || 'Processing...', 'processing');
+                    // Continue polling
+                    setTimeout(pollStatus, 2000);
+                }
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                processBtn.disabled = false;
+            }
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusArea.className = `status-area show ${type}`;
+            
+            if (type === 'processing') {
+                progressFill.style.width = '100%';
+            }
+        }
+
+        function hideStatus() {
+            statusArea.classList.remove('show');
+        }
+
+        // Reset button
+        resetBtn.addEventListener('click', function() {
+            // Reset all state
+            selectedFile = null;
+            selectedDenoise = 0.10;
+            currentPromptId = null;
+            
+            // Reset UI
+            uploadArea.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drop your image here or click to browse</div>
+                <div class="upload-subtext">Supports PNG, JPG, JPEG, WebP (max 16MB)</div>
+            `;
+            
+            previewArea.style.display = 'none';
+            
+            // Reset slider
+            tierSlider.value = 10;
+            tierSlider.disabled = true;
+            document.querySelector('.current-tier-name').textContent = '+1 Tier';
+            document.querySelector('.current-tier-description').textContent = 'Subtle Enhancement';
+            
+            processBtn.disabled = true;
+            hideStatus();
+            resultArea.classList.remove('show');
+            
+            // Clear file input
+            fileInput.value = '';
+        });
+
+        // Health check on load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch('/health');
+                const health = await response.json();
+                
+                if (health.comfyui !== 'connected') {
+                    alert('⚠️ ComfyUI is not connected. Please make sure ComfyUI is running with API enabled on http://127.0.0.1:8188');
+                }
+            } catch (error) {
+                console.warn('Health check failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

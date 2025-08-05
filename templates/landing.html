@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Morphing App - Transform Your Photos with AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .hero {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="1" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-text p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid #95a5a6;
+        }
+        
+        .btn-outline:hover {
+            background: #95a5a6;
+            color: #2c3e50;
+        }
+        
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .demo-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            max-width: 400px;
+        }
+        
+        .demo-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .demo-card.htn {
+            background: rgba(39, 174, 96, 0.2);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        
+        .demo-card.chadlite {
+            background: rgba(52, 73, 94, 0.2);
+            border: 1px solid rgba(52, 73, 94, 0.3);
+        }
+        
+        .demo-card.chad {
+            background: rgba(149, 165, 166, 0.2);
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        
+        .demo-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .demo-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .features {
+            padding: 5rem 2rem;
+            background: #ecf0f1;
+        }
+        
+        .features-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .feature-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .pricing {
+            padding: 5rem 2rem;
+            background: white;
+        }
+        
+        .pricing-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .pricing h2 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .pricing-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid #e1e8ed;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.1);
+            border-color: #95a5a6;
+        }
+        
+        .pricing-card.featured {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .pricing-card.featured h3 {
+            color: white;
+        }
+        
+        .pricing-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #27ae60;
+        }
+        
+        .pricing-card.featured .price {
+            color: #27ae60;
+        }
+        
+        .pricing-card ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e1e8ed;
+            color: #7f8c8d;
+        }
+        
+        .pricing-card.featured li {
+            border-bottom-color: rgba(255,255,255,0.2);
+            color: #ecf0f1;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .demo-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>PSL Accurate Morph</h1>
+                <p>Upload your photo and watch as my custom made AI model transforms you into a fucking GIGACHAD!</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Start Free Today</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Sign In</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="demo-cards">
+                    <div class="demo-card htn">
+                        <h3>HTN</h3>
+                        <p>Minimal Enhancement</p>
+                    </div>
+                    <div class="demo-card chadlite">
+                        <h3>Chadlite</h3>
+                        <p>Strong Transform</p>
+                    </div>
+                    <div class="demo-card chad">
+                        <h3>Chad</h3>
+                        <p>Extreme Power</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <div class="features-content">
+            <h2>Why Choose Face Morph?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Precision AI</h3>
+                    <p>Advanced FaceDetailer technology with YOLO + SAM for pixel-perfect face detection and natural transformations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Results</h3>
+                    <p>Get your transformed photos in seconds. No waiting, no complicated editing - just upload the front face pic and get your results in seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Three Ascension Levels</h3>
+                    <p>Choose +1 tier, +2 tiers and Chad presets for the perfect transformation intensity that matches your needs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your photos are processed securely and automatically deleted. We never store or share your personal images.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💎</div>
+                    <h3>Premium Quality</h3>
+                    <p>This one is the most important. Custom made AI model trained on the PSL gods edits as a dataset lmao, anyways it delivers you stunning results that look natural and realistic every fucking time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Global Access</h3>
+                    <p>Available worldwide with crypto and bank transfer payments. No geographic restrictions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="pricing">
+        <div class="pricing-content">
+            <h2>Simple, Fair Pricing</h2>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Free Tier</h3>
+                    <div class="price">$0</div>
+                    <ul>
+                        <li>1 generation per day</li>
+                        <li>All three presets</li>
+                        <li>High-quality results</li>
+                        <li>No credit card required</li>
+                    </ul>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>Credit Packs</h3>
+                    <div class="price">$5</div>
+                    <ul>
+                        <li>100 generations</li>
+                        <li>No daily limits</li>
+                        <li>Priority processing</li>
+                        <li>Bulk discounts available</li>
+                    </ul>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Start Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
