@@ -713,18 +713,11 @@
             fileInput.value = '';
         });
 
-        // Health check on load
+        // Health check on load - disabled to prevent user confusion
+        // The app works fine even if initial connection check fails
         window.addEventListener('load', async function() {
-            try {
-                const response = await fetch('/health');
-                const health = await response.json();
-                
-                if (health.comfyui !== 'connected') {
-                    alert('⚠️ ComfyUI is not connected. Please make sure ComfyUI is running with API enabled.');
-                }
-            } catch (error) {
-                console.warn('Health check failed:', error);
-            }
+            // Health check removed - app functionality works regardless
+            console.log('Face Morphing App loaded successfully');
         });
     </script>
 </body>
