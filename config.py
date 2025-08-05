@@ -151,13 +151,13 @@ MAX_GENERATIONS_PER_DAY = 100  # For paid users
 RUNPOD_API_KEY = os.getenv('RUNPOD_API_KEY', '')
 RUNPOD_ENDPOINT_ID = os.getenv('RUNPOD_ENDPOINT_ID', '')
 
-# For RunPod pods (direct connection)
-RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', '')  # e.g., "149.36.1.79"
+# For RunPod pods (direct connection) - HARDCODED FOR PRODUCTION
+RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', 'https://choa76vtevld8t-8188.proxy.runpod.net')  # Your RTX 5090 GPU
 RUNPOD_POD_PORT = int(os.getenv('RUNPOD_POD_PORT', '8188'))  # ComfyUI port
-USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'false').lower() == 'true'
+USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'true').lower() == 'true'  # Enable RunPod by default
 
-# Cloud GPU mode selection
-USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'false').lower() == 'true'  # Use direct ComfyUI connection by default
+# Cloud GPU mode selection - ENABLED FOR PRODUCTION
+USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'true').lower() == 'true'  # Use RunPod GPU by default
 
 # RunPod Settings
 RUNPOD_TIMEOUT = 300  # 5 minutes timeout for generation
