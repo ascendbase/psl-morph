@@ -58,6 +58,12 @@ def init_railway_database():
             db.session.commit()
             print("✅ Admin user created: ascendbase@gmail.com / morphpas")
             
+            # Update existing users to have 12 credits if they have 0
+            print("💳 Updating existing users with starter credits...")
+            users_updated = db.session.query(User).filter(User.credits == 0, User.is_admin == False).update({User.credits: 12})
+            db.session.commit()
+            print(f"✅ Updated {users_updated} existing users with 12 starter credits")
+            
             print("🎉 Railway database initialization completed successfully!")
             return True
             
