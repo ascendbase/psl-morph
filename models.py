@@ -239,24 +239,37 @@ def init_db(app):
     db.init_app(app)
     
     with app.app_context():
-        db.create_all()
+        try:
+            # Try to create all tables
+            db.create_all()
+            print("Database tables created successfully")
+        except Exception as e:
+            print(f"Database tables may already exist: {e}")
+            # Tables might already exist, continue with admin user creation
         
-        # Create admin user if it doesn't exist
-        admin = User.query.filter_by(email='ascendbase@gmail.com').first()
-        if not admin:
-            admin = User(
-                email='ascendbase@gmail.com',
-                is_admin=True,
-                credits=1000  # Give admin some credits for testing
-            )
-            admin.set_password('morphpas')
-            db.session.add(admin)
-            db.session.commit()
-            print("Created admin user: ascendbase@gmail.com / morphpas")
-        
-        # Remove old admin user if it exists
-        old_admin = User.query.filter_by(email='admin@example.com').first()
-        if old_admin:
-            db.session.delete(old_admin)
-            db.session.commit()
-            print("Removed old admin user")
+        try:
+            # Create admin user if it doesn't exist
+            admin = User.query.filter_by(email='ascendbase@gmail.com').first()
+            if not admin:
+                admin = User(
+                    email='ascendbase@gmail.com',
+                    is_admin=True,
+                    credits=1000  # Give admin some credits for testing
+                )
+                admin.set_password('morphpas')
+                db.session.add(admin)
+                db.session.commit()
+                print("Created admin user: ascendbase@gmail.com / morphpas")
+            else:
+                print("Admin user already exists")
+            
+            # Remove old admin user if it exists
+            old_admin = User.query.filter_by(email='admin@example.com').first()
+            if old_admin:
+                db.session.delete(old_admin)
+                db.session.commit()
+                print("Removed old admin user")
+                
+        except Exception as e:
+            print(f"Error during admin user setup: {e}")
+            # Continue anyway, the app should still work
