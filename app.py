@@ -416,14 +416,15 @@ def upload_file():
         except ValueError:
             return jsonify({'error': 'Invalid denoise value format'}), 400
         
-        # Check if user can generate
-        can_free = current_user.can_generate_free()
+        # Check if user can generate - prioritize paid credits
         can_paid = current_user.can_generate_paid()
+        can_free = current_user.can_generate_free()
         
-        if not can_free and not can_paid:
+        if not can_paid and not can_free:
             return jsonify({
-                'error': 'No credits available. Purchase credits or wait until tomorrow for your free generation.',
-                'need_credits': True
+                'error': 'No credits available. Purchase more credits or wait until tomorrow for your free generation.',
+                'need_credits': True,
+                'buy_credits_url': '/payments/buy-credits'
             }), 402
         
         if file and allowed_file(file.filename):
@@ -487,22 +488,25 @@ def process_image():
         if not isinstance(denoise_value, (int, float)) or denoise_value < 0.10 or denoise_value > 0.25:
             return jsonify({'error': 'Invalid denoise value. Must be between 0.10 and 0.25'}), 400
         
-        # Check and deduct credits
+        # Check and deduct credits - prioritize paid credits first
         used_free = False
         used_paid = False
         
-        if use_free_credit and current_user.can_generate_free():
-            current_user.use_free_generation()
-            used_free = True
-        elif current_user.can_generate_paid():
+        # First try to use paid credits (including the 12 starter credits)
+        if current_user.can_generate_paid():
             if current_user.use_paid_credit():
                 used_paid = True
             else:
                 return jsonify({'error': 'Failed to deduct credit'}), 402
+        # If no paid credits, try daily free credit
+        elif current_user.can_generate_free():
+            current_user.use_free_generation()
+            used_free = True
         else:
             return jsonify({
-                'error': 'No credits available. Purchase credits or wait until tomorrow for your free generation.',
-                'need_credits': True
+                'error': 'No credits available. Purchase more credits or wait until tomorrow for your free generation.',
+                'need_credits': True,
+                'buy_credits_url': '/payments/buy-credits'
             }), 402
         
         # Determine tier name for logging

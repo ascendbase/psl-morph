@@ -603,7 +603,12 @@
                 pollStatus();
                 
             } catch (error) {
-                showStatus(`Error: ${error.message}`, 'error');
+                const errorMsg = error.message;
+                if (errorMsg.includes('No credits available')) {
+                    showStatus(`${errorMsg} <a href="/payments/buy-credits" style="color: #27ae60; text-decoration: underline;">Buy Credits</a>`, 'error');
+                } else {
+                    showStatus(`Error: ${errorMsg}`, 'error');
+                }
                 processBtn.disabled = false;
             }
         });
@@ -671,7 +676,7 @@
         }
 
         function showStatus(message, type) {
-            statusMessage.textContent = message;
+            statusMessage.innerHTML = message;
             statusArea.className = `status-area show ${type}`;
             
             if (type === 'processing') {
