@@ -52,21 +52,44 @@ class RunPodPodClient:
         logger.info(f"Initialized RunPod Pod client: {self.comfyui_url}")
     
     def test_connection(self):
-        """Test connection to ComfyUI on the pod"""
-        try:
-            response = requests.get(f"{self.comfyui_url}/system_stats", timeout=10)
-            if response.status_code == 200:
-                logger.info("Successfully connected to ComfyUI on RunPod pod")
-                return True
-            else:
-                logger.error(f"ComfyUI responded with status {response.status_code}")
-                return False
-        except requests.exceptions.ConnectionError:
-            logger.error("Cannot connect to ComfyUI on pod. Make sure ComfyUI is running on port 8188")
-            return False
-        except Exception as e:
-            logger.error(f"Connection test failed: {e}")
-            return False
+        """Test connection to ComfyUI on the pod with retry logic"""
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Testing connection to {self.comfyui_url} (attempt {attempt + 1}/{max_retries})")
+                response = requests.get(f"{self.comfyui_url}/system_stats", timeout=15)
+                
+                if response.status_code == 200:
+                    logger.info("Successfully connected to ComfyUI on RunPod pod")
+                    return True
+                elif response.status_code == 502:
+                    logger.warning(f"502 Bad Gateway - ComfyUI may be starting up (attempt {attempt + 1})")
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                else:
+                    logger.error(f"ComfyUI responded with status {response.status_code}")
+                    
+            except requests.exceptions.ConnectionError as e:
+                logger.error(f"Connection error (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+            except requests.exceptions.Timeout as e:
+                logger.error(f"Timeout error (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+            except Exception as e:
+                logger.error(f"Connection test failed (attempt {attempt + 1}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+        
+        logger.error("All connection attempts failed. Make sure ComfyUI is running on your RunPod.")
+        return False
     
     def generate_image(self, image_path, denoise_strength, preset_name):
         """
