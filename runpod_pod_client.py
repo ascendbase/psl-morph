@@ -24,14 +24,18 @@ class RunPodPodClient:
         """
         # Handle different URL formats
         if pod_url.startswith('http'):
-            # Full URL provided
-            self.comfyui_url = pod_url
+            # Full URL provided (e.g., https://choa76vtevld8t-8188.proxy.runpod.net)
+            self.comfyui_url = pod_url.rstrip('/')  # Remove trailing slash
             self.pod_ip = pod_url.split('//')[1].split(':')[0]
         elif '.proxy.runpod.net' in pod_url:
-            # RunPod proxy URL - use HTTPS
-            self.comfyui_url = f"https://{pod_url}"
+            # RunPod proxy URL - use HTTPS and remove any trailing slash
+            clean_url = pod_url.rstrip('/')
+            if not clean_url.startswith('http'):
+                self.comfyui_url = f"https://{clean_url}"
+            else:
+                self.comfyui_url = clean_url
             self.pod_ip = pod_url
-        elif ':' in pod_url:
+        elif ':' in pod_url and not pod_url.startswith('http'):
             # IP:SSH_PORT format
             ip, port = pod_url.split(':')
             self.pod_ip = ip
