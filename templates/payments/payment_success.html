@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Submitted - Face Morphing App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .header {
+            background: #00ac48;
+            color: white;
+            padding: 40px;
+        }
+
+        .success-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .transaction-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .transaction-info h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .next-steps {
+            background: #e8f5e8;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .next-steps h3 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .next-steps ol {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .next-steps li {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: #181818;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .contact-info {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-info h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .contact-info p {
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✅</div>
+            <h1>Payment Submitted!</h1>
+            <p>Your payment request has been received</p>
+        </div>
+        
+        <div class="content">
+            <div class="status-pending">
+                <strong>⏳ Pending Verification</strong><br>
+                Your payment is being processed and will be verified within 24 hours.
+            </div>
+            
+            <div class="transaction-info">
+                <h3>📋 Transaction Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Transaction ID:</span>
+                    <span class="info-value">{{ transaction.id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Credits:</span>
+                    <span class="info-value">{{ transaction.credits_purchased }} credits</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount:</span>
+                    <span class="info-value">${{ "%.2f"|format(transaction.amount_usd) }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Payment Method:</span>
+                    <span class="info-value">🪙 Cryptocurrency</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">{{ transaction.payment_status.title() }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value">{{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>📝 Next Steps</h3>
+                <ol>
+                    <li><strong>Send Payment:</strong> Make sure you've transfered the exact amount to the provided cryptocurrency address</li>
+                    <li><strong>Wait for Confirmation:</strong> Blockchain confirmations typically take 10-60 minutes</li>
+                    <li><strong>Automatic Verification:</strong> We'll verify your payment within 24 hours</li>
+                    <li><strong>Credits Added:</strong> Your credits will be automatically added to your account</li>
+                </ol>
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <a href="{{ url_for('dashboard') }}" class="btn">
+                    📊 Back to Dashboard
+                </a>
+                <a href="{{ url_for('app_interface') }}" class="btn btn-secondary">
+                    🎨 Start Morphing
+                </a>
+            </div>
+            
+            <div class="contact-info">
+                <h4>❓ Need Help?</h4>
+                <p>
+                    If you have any questions about your payment or need assistance,
+                    please contact our support team at <strong>ascendbase@gmail.com</strong>.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

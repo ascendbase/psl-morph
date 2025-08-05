@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Face Morphing App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ecf0f1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #6d849a;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #6d849a;
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .profile-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .info-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid #e1e8ed;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .activity-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .activity-icon.generation {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .activity-icon.payment {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .activity-icon.login {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .activity-time {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: #181818;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 My Profile</h1>
+            <p>Manage your account and view your activity</p>
+        </div>
+        
+        <div class="content">
+            <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+            
+            <div class="profile-section">
+                <h3>📋 Account Information</h3>
+                <div class="profile-info">
+                    <div class="info-card">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value">{{ current_user.email }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Member Since</div>
+                        <div class="info-value">{{ current_user.created_at.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Account Status</div>
+                        <div class="info-value" style="color: #4caf50;">Active</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Current Credits</div>
+                        <div class="info-value" style="color: #667eea;">{{ current_user.credits }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3>📊 Usage Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.total_generations }}</div>
+                        <div class="stat-label">Total Generations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.successful_generations }}</div>
+                        <div class="stat-label">Successful</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.credits_used }}</div>
+                        <div class="stat-label">Credits Used</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.free_generations_used }}</div>
+                        <div class="stat-label">Free Generations</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3>💳 Payment History</h3>
+                <div class="recent-activity">
+                    {% if recent_transactions %}
+                    <div class="activity-list">
+                        {% for transaction in recent_transactions %}
+                        <div class="activity-item">
+                            <div class="activity-icon payment">💰</div>
+                            <div class="activity-details">
+                                <div class="activity-title">
+                                    {{ transaction.credits_purchased }} Credits - ${{ "%.2f"|format(transaction.amount_usd) }}
+                                    {% if transaction.payment_status == 'completed' %}
+                                    <span style="color: #27ae60;">✓ Completed</span>
+                                    {% elif transaction.payment_status == 'pending' %}
+                                    <span style="color: #f39c12;">⏳ Pending</span>
+                                    {% elif transaction.payment_status == 'verification_pending' %}
+                                    <span style="color: #3498db;">🔍 Under Review</span>
+                                    {% elif transaction.payment_status == 'failed' %}
+                                    <span style="color: #e74c3c;">✗ Failed</span>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-time">
+                                    {{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }} |
+                                    ID: {{ transaction.id[:8] }}...
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💳</div>
+                        <p>No payment history yet. <a href="{{ url_for('payments.buy_credits') }}" style="color: #27ae60;">Buy credits</a> to get started!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h3>🕒 Recent Activity</h3>
+                <div class="recent-activity">
+                    {% if recent_generations %}
+                    <div class="activity-list">
+                        {% for generation in recent_generations %}
+                        <div class="activity-item">
+                            <div class="activity-icon generation">🎨</div>
+                            <div class="activity-details">
+                                <div class="activity-title">
+                                    {{ generation.preset }} Generation
+                                    {% if generation.status == 'completed' %}
+                                    <span style="color: #27ae60;">✓</span>
+                                    {% elif generation.status == 'failed' %}
+                                    <span style="color: #e74c3c;">✗</span>
+                                    {% else %}
+                                    <span style="color: #f39c12;">⏳</span>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-time">{{ generation.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎨</div>
+                        <p>No generations yet. Start morphing faces to see your activity here!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="actions">
+                <a href="{{ url_for('payments.buy_credits') }}" class="btn">
+                    💳 Buy Credits
+                </a>
+                <a href="{{ url_for('app_interface') }}" class="btn btn-secondary">
+                    🎨 Start Morphing
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
