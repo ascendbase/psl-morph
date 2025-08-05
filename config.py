@@ -152,7 +152,7 @@ RUNPOD_API_KEY = os.getenv('RUNPOD_API_KEY', '')
 RUNPOD_ENDPOINT_ID = os.getenv('RUNPOD_ENDPOINT_ID', '')
 
 # For RunPod pods (direct connection) - HARDCODED FOR PRODUCTION
-RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', 'https://choa76vtevld8t-8188.proxy.runpod.net')  # Your RTX 5090 GPU
+RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', 'https://i01ikv3a648vzu-8188.proxy.runpod.net')  # Your RTX 5090 GPU
 RUNPOD_POD_PORT = int(os.getenv('RUNPOD_POD_PORT', '8188'))  # ComfyUI port
 USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'true').lower() == 'true'  # Enable RunPod by default
 
