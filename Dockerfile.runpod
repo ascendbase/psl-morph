@@ -1,0 +1,60 @@
+# Use a smaller, faster base image
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Clone ComfyUI with shallow clone for speed
+RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
+
+# Install ComfyUI requirements
+WORKDIR /workspace/ComfyUI
+RUN pip install -r requirements.txt
+
+# Install custom nodes with shallow clones and error handling
+WORKDIR /workspace/ComfyUI/custom_nodes
+
+# Install FaceDetailer node and dependencies
+RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git || echo "Masquerade clone failed"
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git || echo "Impact Pack clone failed"
+RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git || echo "WAS Suite clone failed"
+
+# Install ReActor if needed
+RUN git clone --depth 1 https://github.com/Gourieff/comfyui-reactor-node.git || echo "ReActor clone failed"
+WORKDIR /workspace/ComfyUI/custom_nodes/comfyui-reactor-node
+RUN pip install -r requirements.txt || echo "ReActor requirements failed"
+
+# Go back to ComfyUI root
+WORKDIR /workspace/ComfyUI
+
+# Create directories for models (you'll need to add your models manually)
+RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams
+
+# Download FaceDetailer models with better error handling
+WORKDIR /workspace/ComfyUI/models/ultralytics
+RUN wget --timeout=30 --tries=3 -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Failed to download face_yolov8m.pt"
+
+WORKDIR /workspace/ComfyUI/models/sams
+RUN wget --timeout=30 --tries=3 -O sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" || echo "Failed to download sam_vit_b_01ec64.pth"
+
+# Create directories for workflows
+WORKDIR /workspace/ComfyUI
+RUN mkdir -p workflows
+
+# Expose port
+EXPOSE 8188
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Start ComfyUI
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--dont-print-server"]
