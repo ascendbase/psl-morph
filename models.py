@@ -240,8 +240,8 @@ def init_db(app):
     
     with app.app_context():
         try:
-            # Skip automatic table creation - using manual database setup
-            # db.create_all()  # Commented out to prevent overwriting manually created database
+            # Try to create all tables
+            db.create_all()
             print("Database tables created successfully")
         except Exception as e:
             print(f"Database tables may already exist: {e}")

@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy Credits - Face Morphing App</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
-         crossorigin="anonymous"></script>
     <style>
         * {
             margin: 0;
@@ -300,8 +298,10 @@
                             {% if package_id == '20' %}
                             Perfect for trying out the service
                             {% elif package_id == '50' %}
-                            Great value for regular users
-                            {% elif package_id == '120' %}
+                            Great for occasional users
+                            {% elif package_id == '100' %}
+                            Best value for regular users
+                            {% elif package_id == '250' %}
                             Best deal for power users
                             {% endif %}
                         </div>
@@ -395,8 +395,14 @@
         }
 
         function getPackagePrice(packageId) {
-            const packages = {{ credit_packages | tojson }};
-            return packages[packageId].price.toFixed(2);
+            // Updated to work with new credit packages
+            const priceMap = {
+                '20': 5.00,
+                '50': 10.00,
+                '100': 18.00,
+                '250': 40.00
+            };
+            return priceMap[packageId] ? priceMap[packageId].toFixed(2) : '0.00';
         }
 
         // Copy wallet address to clipboard

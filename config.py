@@ -138,7 +138,8 @@ PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
 CREDIT_PACKAGES = {
     '20': {'credits': 20, 'price': 5.00, 'bonus': 0},
     '50': {'credits': 50, 'price': 10.00, 'bonus': 5},  # 10% bonus
-    '120': {'credits': 120, 'price': 20.00, 'bonus': 24}  # 20% bonus
+    '100': {'credits': 100, 'price': 18.00, 'bonus': 15},  # 15% bonus
+    '250': {'credits': 250, 'price': 40.00, 'bonus': 50}  # 20% bonus
 }
 
 # Rate Limiting
