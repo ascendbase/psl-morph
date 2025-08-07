@@ -1,13 +1,20 @@
 # Use a smaller, faster base image
 FROM python:3.10-slim
 
-# Install system dependencies
+# Install system dependencies including OpenCV requirements
 RUN apt-get update && apt-get install -y \
     git \
     wget \
     curl \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libglib2.0-0 \
+    libgtk-3-0 \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -16,22 +23,49 @@ WORKDIR /workspace
 # Clone ComfyUI with shallow clone for speed
 RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
 
-# Install ComfyUI requirements
+# Install ComfyUI requirements and missing dependencies
 WORKDIR /workspace/ComfyUI
 RUN pip install -r requirements.txt
 
-# Install custom nodes with shallow clones and error handling
+# Install missing dependencies for custom nodes
+RUN pip install \
+    opencv-python-headless \
+    numba \
+    scipy \
+    scikit-image \
+    segment-anything \
+    ultralytics \
+    insightface \
+    onnxruntime \
+    facexlib \
+    gfpgan \
+    realesrgan
+
+# Install ComfyUI Manager first
 WORKDIR /workspace/ComfyUI/custom_nodes
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git || echo "ComfyUI Manager clone failed"
 
-# Install FaceDetailer node and dependencies
-RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git || echo "Masquerade clone failed"
+# Install Impact Pack with proper dependency handling
 RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git || echo "Impact Pack clone failed"
-RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git || echo "WAS Suite clone failed"
 
-# Install ReActor if needed
-RUN git clone --depth 1 https://github.com/Gourieff/comfyui-reactor-node.git || echo "ReActor clone failed"
-WORKDIR /workspace/ComfyUI/custom_nodes/comfyui-reactor-node
-RUN pip install -r requirements.txt || echo "ReActor requirements failed"
+# Install Impact Pack dependencies in the correct order
+WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
+RUN pip install --no-cache-dir -r requirements.txt || echo "Impact Pack requirements failed"
+
+# Install additional dependencies that Impact Pack needs
+RUN pip install --no-cache-dir \
+    mediapipe \
+    albumentations \
+    kornia \
+    timm \
+    addict \
+    yapf \
+    || echo "Additional Impact Pack dependencies failed"
+
+# Install other essential nodes
+WORKDIR /workspace/ComfyUI/custom_nodes
+RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git || echo "Masquerade clone failed"
+RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git || echo "WAS Suite clone failed"
 
 # Go back to ComfyUI root
 WORKDIR /workspace/ComfyUI
