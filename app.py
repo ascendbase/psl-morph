@@ -945,16 +945,20 @@ if __name__ == '__main__':
         if USE_RUNPOD_POD:
             print(f"GPU Provider: RunPod Pod ({RUNPOD_POD_URL}:{RUNPOD_POD_PORT})")
         else:
-            print(f"GPU Provider: RunPod Serverless (Endpoint: {RUNPOD_ENDPOINT_ID})")
+            print(f"GPU Provider: RunPod Serverless (Endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID or 'not_configured'})")
     else:
         print(f"GPU Provider: ComfyUI (URL: {COMFYUI_URL})")
     
     print(f"Available presets: {', '.join(PRESETS.keys())}")
-    print(f"Open http://{HOST}:{PORT} in your browser")
     print(f"Environment: {ENVIRONMENT}")
     print(f"Admin login: ascendbase@gmail.com / morphpas")
     
     # Clean up old files on startup
     cleanup_old_files()
     
-    app.run(debug=DEBUG, host=HOST, port=PORT, threaded=THREADED)
+    # For Railway deployment, bind to 0.0.0.0 and use PORT from environment
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', PORT))
+    
+    print(f"Starting server on {host}:{port}")
+    app.run(debug=DEBUG, host=host, port=port, threaded=THREADED)
