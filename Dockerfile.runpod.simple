@@ -24,9 +24,12 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git
 RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install -r ComfyUI/requirements.txt
 
-# Copy your models
-COPY base_models/real-dream-15.safetensors ComfyUI/models/checkpoints/
-COPY lora/chad_sd1.5.safetensors ComfyUI/models/loras/
+# Create model directories
+RUN mkdir -p ComfyUI/models/checkpoints ComfyUI/models/loras
+
+# Download a basic SD1.5 model for testing
+RUN wget -O ComfyUI/models/checkpoints/v1-5-pruned-emaonly.safetensors \
+    https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors
 
 # Set permissions
 RUN chmod -R 755 ComfyUI/models/
