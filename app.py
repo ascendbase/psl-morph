@@ -545,17 +545,27 @@ def process_image():
             
             try:
                 # Start RunPod generation
-                job_id = gpu_client.generate_image(
+                job_result = gpu_client.generate_image(
                     image_path=file_path,
                     denoise_strength=denoise_value,
                     preset_name=tier_name
                 )
                 
-                if not job_id:
-                    generation.status = 'failed'
-                    generation.error_message = 'Failed to start RunPod generation'
-                    db.session.commit()
-                    return jsonify({'error': 'Failed to start generation'}), 500
+                # Handle tuple return (job_id, error)
+                if isinstance(job_result, tuple):
+                    job_id, error = job_result
+                    if error or not job_id:
+                        generation.status = 'failed'
+                        generation.error_message = error or 'Failed to start RunPod generation'
+                        db.session.commit()
+                        return jsonify({'error': error or 'Failed to start generation'}), 500
+                else:
+                    job_id = job_result
+                    if not job_id:
+                        generation.status = 'failed'
+                        generation.error_message = 'Failed to start RunPod generation'
+                        db.session.commit()
+                        return jsonify({'error': 'Failed to start generation'}), 500
                 
                 # Update generation with job ID
                 generation.prompt_id = str(job_id)  # Ensure it's a string
