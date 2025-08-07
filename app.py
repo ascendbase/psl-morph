@@ -558,7 +558,7 @@ def process_image():
                     return jsonify({'error': 'Failed to start generation'}), 500
                 
                 # Update generation with job ID
-                generation.prompt_id = job_id
+                generation.prompt_id = str(job_id)  # Ensure it's a string
                 generation.status = 'processing'
                 generation.started_at = datetime.utcnow()
                 db.session.commit()
