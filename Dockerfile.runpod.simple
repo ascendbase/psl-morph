@@ -1,5 +1,5 @@
-# Build from scratch with Ubuntu and Python
-FROM nvidia/cuda:11.8-devel-ubuntu22.04
+# Use simple Ubuntu base that definitely exists
+FROM ubuntu:22.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -20,8 +20,8 @@ WORKDIR /app
 # Clone ComfyUI
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git
 
-# Install Python dependencies
-RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Install Python dependencies (CPU version for now, will work on any hardware)
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install -r ComfyUI/requirements.txt
 
 # Copy your models
@@ -35,4 +35,4 @@ RUN chmod -R 755 ComfyUI/models/
 EXPOSE 8188
 
 # Start ComfyUI
-CMD ["python3", "ComfyUI/main.py", "--listen", "0.0.0.0", "--port", "8188"]
+CMD ["python3", "ComfyUI/main.py", "--listen", "0.0.0.0", "--port", "8188", "--cpu"]
