@@ -1,5 +1,5 @@
-# Use a smaller, faster base image
-FROM python:3.10-slim
+# Use Python 3.12 to match your working local environment
+FROM python:3.12-slim
 
 # Install system dependencies including OpenCV requirements
 RUN apt-get update && apt-get install -y \
@@ -27,45 +27,61 @@ RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
 WORKDIR /workspace/ComfyUI
 RUN pip install -r requirements.txt
 
-# Install missing dependencies for custom nodes
-RUN pip install \
-    opencv-python-headless \
-    numba \
-    scipy \
-    scikit-image \
+# Install ComfyUI Manager first (this is the key!)
+WORKDIR /workspace/ComfyUI/custom_nodes
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git
+
+# Install Impact Pack using the EXACT method that worked locally
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
+
+# Install the specific dependencies that ComfyUI Manager installs
+# Based on your successful log: segment-anything, scikit-image, opencv-python-headless
+RUN pip install --no-cache-dir \
+    "numpy<2" \
     segment-anything \
-    ultralytics \
+    scikit-image \
+    opencv-python-headless
+
+# Run the Impact Pack install script (mimics what ComfyUI Manager does)
+WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
+RUN python install.py || echo "Install script completed"
+
+# Install additional dependencies for other nodes
+RUN pip install --no-cache-dir \
     insightface \
     onnxruntime \
     facexlib \
     gfpgan \
-    realesrgan
-
-# Install ComfyUI Manager first
-WORKDIR /workspace/ComfyUI/custom_nodes
-RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git || echo "ComfyUI Manager clone failed"
-
-# Install Impact Pack with proper dependency handling
-RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git || echo "Impact Pack clone failed"
-
-# Install Impact Pack dependencies in the correct order
-WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
-RUN pip install --no-cache-dir -r requirements.txt || echo "Impact Pack requirements failed"
-
-# Install additional dependencies that Impact Pack needs
-RUN pip install --no-cache-dir \
+    realesrgan \
     mediapipe \
     albumentations \
     kornia \
     timm \
     addict \
     yapf \
-    || echo "Additional Impact Pack dependencies failed"
+    basicsr \
+    filterpy \
+    lark \
+    omegaconf \
+    rich \
+    tqdm
+
+# Install ReActor node (CRITICAL for face swapping)
+WORKDIR /workspace/ComfyUI/custom_nodes
+RUN git clone --depth 1 https://github.com/Gourieff/comfyui-reactor-node.git
+
+# Install ReActor dependencies
+WORKDIR /workspace/ComfyUI/custom_nodes/comfyui-reactor-node
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
 
 # Install other essential nodes
 WORKDIR /workspace/ComfyUI/custom_nodes
-RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git || echo "Masquerade clone failed"
-RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git || echo "WAS Suite clone failed"
+RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git
+RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git
+
+# Install WAS Suite dependencies
+WORKDIR /workspace/ComfyUI/custom_nodes/was-node-suite-comfyui
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
 
 # Go back to ComfyUI root
 WORKDIR /workspace/ComfyUI
@@ -89,8 +105,10 @@ RUN wget --timeout=60 --tries=3 -O inswapper_128.onnx "https://github.com/facefu
 WORKDIR /workspace/ComfyUI/models/facerestore_models
 RUN wget --timeout=60 --tries=3 -O GFPGANv1.3.pth "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth" || echo "Failed to download GFPGANv1.3.pth"
 
-# Download FaceDetailer models
+# Download FaceDetailer models (create bbox subdirectory)
 WORKDIR /workspace/ComfyUI/models/ultralytics
+RUN mkdir -p bbox
+WORKDIR /workspace/ComfyUI/models/ultralytics/bbox
 RUN wget --timeout=30 --tries=3 -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Failed to download face_yolov8m.pt"
 
 WORKDIR /workspace/ComfyUI/models/sams
