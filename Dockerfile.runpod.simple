@@ -27,9 +27,13 @@ RUN pip3 install -r ComfyUI/requirements.txt
 # Create model directories
 RUN mkdir -p ComfyUI/models/checkpoints ComfyUI/models/loras
 
-# Download a basic SD1.5 model for testing
+# Download a basic SD1.5 model that's publicly available
 RUN wget -O ComfyUI/models/checkpoints/v1-5-pruned-emaonly.safetensors \
     https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors
+
+# Create placeholder files for your custom models (will be replaced via volume mount or upload)
+RUN touch ComfyUI/models/checkpoints/real-dream-15.safetensors
+RUN touch ComfyUI/models/loras/chad_sd1.5.safetensors
 
 # Set permissions
 RUN chmod -R 755 ComfyUI/models/

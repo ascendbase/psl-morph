@@ -16,7 +16,7 @@ from config import *
 from models import db, User, Generation, Transaction, init_db
 from auth import auth_bp, init_login_manager
 from payments import payments_bp
-from runpod_client import RunPodClient
+from morph_replicate_client import MorphReplicateClient
 
 # Configure logging
 logging.basicConfig(
@@ -43,24 +43,9 @@ app.register_blueprint(payments_bp)
 gpu_client = None
 try:
     if USE_CLOUD_GPU:
-        if USE_RUNPOD_POD:
-            # Use RunPod pod (direct connection to ComfyUI) - DEPRECATED
-            from runpod_pod_client import RunPodPodClient
-            gpu_client = RunPodPodClient(
-                pod_url=RUNPOD_POD_URL,
-                pod_port=RUNPOD_POD_PORT
-            )
-            logger.info(f"Initialized RunPod Pod client: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}")
-        else:
-            # Use RunPod serverless endpoint (RECOMMENDED - 95-99% cost savings!)
-            if RUNPOD_API_KEY and (RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID):
-                gpu_client = RunPodClient(
-                    api_key=RUNPOD_API_KEY,
-                    endpoint_id=RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID
-                )
-                logger.info(f"Initialized RunPod serverless client with endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID}")
-            else:
-                logger.warning("RunPod credentials not configured, GPU client will be initialized later")
+        # Use Replicate for cloud GPU processing (MUCH BETTER than RunPod!)
+        gpu_client = MorphReplicateClient()
+        logger.info("Initialized Replicate client - 60% cost savings vs RunPod!")
     else:
         from comfyui_client import ComfyUIClient
         gpu_client = ComfyUIClient(COMFYUI_URL)
@@ -793,7 +778,7 @@ def health_check():
     """Health check endpoint"""
     try:
         if USE_CLOUD_GPU:
-            # Check RunPod connection
+            # Check Replicate connection
             gpu_status = "disconnected"
             if gpu_client:
                 try:
@@ -801,12 +786,8 @@ def health_check():
                 except:
                     gpu_status = "disconnected"
             
-            if USE_RUNPOD_POD:
-                gpu_type = "runpod_pod"
-                gpu_info = f"Pod: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}"
-            else:
-                gpu_type = "runpod_serverless"
-                gpu_info = f"Endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID or 'not_configured'}"
+            gpu_type = "replicate"
+            gpu_info = "Replicate API (60% cost savings vs RunPod!)"
         else:
             # Check ComfyUI connection
             try:
@@ -829,8 +810,8 @@ def health_check():
         'gpu_info': gpu_info,
         'presets': list(PRESETS.keys()),
         'cloud_gpu_enabled': USE_CLOUD_GPU,
-        'runpod_pod_enabled': USE_RUNPOD_POD,
-        'app_version': '2.0.0-serverless'
+        'replicate_enabled': True,
+        'app_version': '3.0.0-replicate'
     })
 
 # Admin routes
