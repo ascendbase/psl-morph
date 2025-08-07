@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
     is_blocked = db.Column(db.Boolean, default=False)
     
     # Credit system
-    credits = db.Column(db.Integer, default=12)  # Paid credits - new users get 12 free credits
+    credits = db.Column(db.Integer, default=5)  # Paid credits - new users get 5 free credits
     free_generations_used_today = db.Column(db.Integer, default=0)
     last_free_generation_date = db.Column(db.Date)
     
