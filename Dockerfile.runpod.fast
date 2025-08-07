@@ -1,0 +1,76 @@
+# Optimized Dockerfile for RunPod deployment
+FROM python:3.10-slim
+
+# Install system dependencies in one layer
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Clone ComfyUI with specific commit for stability
+RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
+
+# Install ComfyUI requirements
+WORKDIR /workspace/ComfyUI
+COPY requirements.txt /tmp/app-requirements.txt
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /tmp/app-requirements.txt || echo "App requirements not found, skipping"
+
+# Create custom_nodes directory
+RUN mkdir -p custom_nodes
+
+# Install custom nodes one by one for better error handling
+WORKDIR /workspace/ComfyUI/custom_nodes
+
+# Install FaceDetailer dependencies
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git || echo "Impact Pack clone failed"
+RUN cd ComfyUI-Impact-Pack && pip install --no-cache-dir -r requirements.txt || echo "Impact Pack requirements failed"
+
+RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.git || echo "WAS Node Suite clone failed"
+RUN cd was-node-suite-comfyui && pip install --no-cache-dir -r requirements.txt || echo "WAS requirements failed"
+
+# Install ReActor
+RUN git clone --depth 1 https://github.com/Gourieff/comfyui-reactor-node.git || echo "ReActor clone failed"
+RUN cd comfyui-reactor-node && pip install --no-cache-dir -r requirements.txt || echo "ReActor requirements failed"
+
+# Install additional useful nodes
+RUN git clone --depth 1 https://github.com/BadCafeCode/masquerade-nodes-comfyui.git || echo "Masquerade nodes clone failed"
+
+# Go back to ComfyUI root
+WORKDIR /workspace/ComfyUI
+
+# Create model directories
+RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams models/insightface
+
+# Download essential models with error handling
+RUN wget -O models/ultralytics/face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Face detection model download failed"
+RUN wget -O models/sams/sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" || echo "SAM model download failed"
+
+# Create workflows directory and copy workflows
+RUN mkdir -p workflows
+COPY comfyui_workflows/ workflows/ 2>/dev/null || echo "No workflows to copy"
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/workspace/ComfyUI
+
+# Expose port
+EXPOSE 8188
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8188/ || exit 1
+
+# Start ComfyUI with optimized settings
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--dont-print-server"]

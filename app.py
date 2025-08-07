@@ -43,7 +43,7 @@ app.register_blueprint(payments_bp)
 gpu_client = None
 if USE_CLOUD_GPU:
     if USE_RUNPOD_POD:
-        # Use RunPod pod (direct connection to ComfyUI)
+        # Use RunPod pod (direct connection to ComfyUI) - DEPRECATED
         from runpod_pod_client import RunPodPodClient
         gpu_client = RunPodPodClient(
             pod_url=RUNPOD_POD_URL,
@@ -51,12 +51,12 @@ if USE_CLOUD_GPU:
         )
         logger.info(f"Initialized RunPod Pod client: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}")
     else:
-        # Use RunPod serverless endpoint
+        # Use RunPod serverless endpoint (RECOMMENDED - 95-99% cost savings!)
         gpu_client = RunPodClient(
             api_key=RUNPOD_API_KEY,
-            endpoint_id=RUNPOD_ENDPOINT_ID
+            endpoint_id=RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID
         )
-        logger.info(f"Initialized RunPod serverless client with endpoint: {RUNPOD_ENDPOINT_ID}")
+        logger.info(f"Initialized RunPod serverless client with endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID}")
 else:
     from comfyui_client import ComfyUIClient
     gpu_client = ComfyUIClient(COMFYUI_URL)

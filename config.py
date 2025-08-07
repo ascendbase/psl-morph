@@ -148,14 +148,16 @@ MAX_GENERATIONS_PER_HOUR = 10  # For paid users
 MAX_GENERATIONS_PER_DAY = 100  # For paid users
 
 # Cloud GPU Configuration (RunPod)
-# For serverless endpoints
+# For serverless endpoints (recommended for cost efficiency - 95-99% cost savings!)
 RUNPOD_API_KEY = os.getenv('RUNPOD_API_KEY', '')
 RUNPOD_ENDPOINT_ID = os.getenv('RUNPOD_ENDPOINT_ID', '')
+RUNPOD_SERVERLESS_ENDPOINT = os.getenv('RUNPOD_SERVERLESS_ENDPOINT', '')
+RUNPOD_SERVERLESS_URL = os.getenv('RUNPOD_SERVERLESS_URL', '')
 
-# For RunPod pods (direct connection) - HARDCODED FOR PRODUCTION
+# For RunPod pods (direct connection) - DEPRECATED, use serverless instead
 RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', 'https://i01ikv3a648vzu-8188.proxy.runpod.net')  # Your RTX 5090 GPU
 RUNPOD_POD_PORT = int(os.getenv('RUNPOD_POD_PORT', '8188'))  # ComfyUI port
-USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'true').lower() == 'true'  # Enable RunPod by default
+USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'false').lower() == 'true'  # Disable pod by default - USE SERVERLESS!
 
 # Cloud GPU mode selection - ENABLED FOR PRODUCTION
 USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'true').lower() == 'true'  # Use RunPod GPU by default

@@ -228,3 +228,15 @@ Typical costs for face morphing generations:
 Monthly costs for 1000 generations: $4 - $24
 
 This is significantly more cost-effective than maintaining dedicated GPU infrastructure.
+
+## Cost Analysis
+
+Using RunPod serverless endpoints can significantly reduce costs compared to dedicated pods:
+- **Dedicated Pod**: $25/day fixed cost regardless of usage
+- **Serverless**: Pay only for compute time (~$0.0003-0.0005 per generation)
+
+For typical usage (100 generations/day), serverless costs ~$120/month vs $750/month for dedicated pods.
+
+## Serverless Migration
+
+To migrate from a dedicated pod to serverless endpoints for cost savings, see [RUNPOD_SERVERLESS_SETUP.md](RUNPOD_SERVERLESS_SETUP.md) for detailed instructions.
