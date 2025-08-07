@@ -1,138 +1,159 @@
-# GitHub → RunPod Serverless Deployment Guide
+# 🚀 GitHub → RunPod Serverless Deployment (RECOMMENDED)
 
-## 🎯 Overview
-Instead of building Docker images locally (which failed), we'll use RunPod's GitHub integration to deploy directly from your repository. This is much faster and more reliable!
+## 🎯 **SOLUTION: Use GitHub Sync + ComfyUI Manager**
 
-## ✅ What You Have
-- Your code is already on GitHub: `https://github.com/ascendbase/psl-morph.git`
-- RunPod offers direct GitHub deployment
-- No need to build Docker images locally!
+Since you're using GitHub sync, we can fix the dependency issues by:
+1. **Adding a startup script** that installs missing dependencies
+2. **Using ComfyUI Manager** to properly install custom nodes
+3. **Leveraging GitHub sync** for automatic updates
 
-## 🚀 Step-by-Step GitHub Deployment
+## 📋 **Step 1: Create Startup Script**
 
-### Step 1: Prepare Your Repository
-Your repository already has everything needed:
-- ✅ `Dockerfile.runpod` (for RunPod to build)
-- ✅ ComfyUI workflows
-- ✅ Python application code
-- ✅ Requirements files
+Create this file in your repo and commit it:
 
-### Step 2: Create RunPod Serverless Endpoint from GitHub
+**File: `runpod_startup.sh`**
+```bash
+#!/bin/bash
 
-1. **Go to RunPod Console**
-   - Visit: https://www.runpod.io/console/serverless
-   - Click "Deploy a New Serverless Endpoint"
+echo "🚀 Starting RunPod ComfyUI with GitHub sync..."
 
-2. **Choose "Import Git Repository"**
-   - Click "Connect GitHub" (as shown in your screenshot)
-   - Authorize RunPod to access your GitHub account
+# Install missing Python dependencies
+echo "📦 Installing missing dependencies..."
+pip install --no-cache-dir \
+    opencv-python-headless \
+    numba \
+    scipy \
+    scikit-image \
+    segment-anything \
+    ultralytics \
+    insightface \
+    onnxruntime \
+    facexlib \
+    gfpgan \
+    realesrgan
 
-3. **Select Your Repository**
-   - Choose: `ascendbase/psl-morph`
-   - Branch: `main` (or your default branch)
+# Navigate to ComfyUI directory
+cd /workspace/ComfyUI
 
-4. **Configure Build Settings**
-   - **Dockerfile Path**: `Dockerfile.runpod`
-   - **Build Context**: `/` (root directory)
-   - **Build Arguments**: (leave empty)
+# Install ComfyUI Manager if not present
+if [ ! -d "custom_nodes/ComfyUI-Manager" ]; then
+    echo "📥 Installing ComfyUI Manager..."
+    cd custom_nodes
+    git clone https://github.com/ltdrdata/ComfyUI-Manager.git
+    cd ..
+fi
 
-5. **Configure Endpoint Settings**
-   - **Endpoint Name**: `face-morphing-comfyui`
-   - **GPU Type**: RTX 4090 or A100
-   - **Container Disk**: 20GB
-   - **Max Workers**: 3-5
-   - **Idle Timeout**: 5 seconds
-   - **Max Execution Time**: 300 seconds
+# Create models directories
+mkdir -p models/ultralytics models/sams
 
-6. **Environment Variables** (if needed)
-   ```
-   PYTHONUNBUFFERED=1
-   ```
+# Download required models
+echo "📥 Downloading face detection models..."
+cd models/ultralytics
+wget -q -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Face model download failed"
 
-### Step 3: Deploy and Get Endpoint Details
+cd ../sams
+wget -q -O sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" || echo "SAM model download failed"
 
-After deployment, you'll get:
-- **Endpoint ID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-- **API URL**: `https://api.runpod.ai/v2/your-endpoint-id`
-- **API Key**: Your RunPod API key
+cd /workspace/ComfyUI
 
-## 🔧 Advantages of GitHub Deployment
-
-### ✅ Benefits
-- **No local Docker build** (eliminates I/O errors)
-- **Automatic rebuilds** when you push to GitHub
-- **RunPod's optimized build environment**
-- **Faster deployment** (RunPod has better infrastructure)
-- **Version control integration**
-- **No need to push to Docker Hub**
-
-### ⚡ Speed Comparison
-- **Local Docker build**: 2+ hours (often fails)
-- **GitHub → RunPod**: 10-20 minutes (reliable)
-
-## 📋 Next Steps After Deployment
-
-### 1. Test the Endpoint
-```python
-import requests
-
-# Test endpoint
-url = "https://api.runpod.ai/v2/your-endpoint-id/run"
-headers = {
-    "Authorization": "Bearer your-api-key",
-    "Content-Type": "application/json"
-}
-
-data = {
-    "input": {
-        "workflow": {
-            # Your ComfyUI workflow here
-        }
-    }
-}
-
-response = requests.post(url, json=data, headers=headers)
-print(response.json())
+echo "✅ Setup complete! Starting ComfyUI..."
+python main.py --listen 0.0.0.0 --port 8188 --dont-print-server
 ```
 
-### 2. Update Your Railway App
-Add these environment variables to your Railway app:
-```env
-RUNPOD_SERVERLESS_ENDPOINT=your-endpoint-id
-RUNPOD_API_KEY=your-api-key
-RUNPOD_SERVERLESS_URL=https://api.runpod.ai/v2/your-endpoint-id
+## 📋 **Step 2: Update RunPod Serverless Configuration**
+
+### **Option A: Use GitHub Template (RECOMMENDED)**
+
+1. **Go to RunPod Console** → **Serverless** → **Your Endpoint**
+2. **Click "Edit"**
+3. **Set Container Image** to: `runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel-ubuntu22.04`
+4. **Enable GitHub Integration:**
+   - Repository: `ascendbase/psl-morph`
+   - Branch: `main`
+   - Access Token: Your GitHub token
+5. **Set Startup Command:**
+   ```bash
+   chmod +x /workspace/runpod_startup.sh && /workspace/runpod_startup.sh
+   ```
+
+### **Option B: Manual Startup Script**
+
+If GitHub sync isn't working, use this startup command:
+```bash
+cd /workspace && \
+pip install opencv-python-headless numba scipy scikit-image segment-anything ultralytics insightface onnxruntime facexlib gfpgan realesrgan && \
+git clone https://github.com/comfyanonymous/ComfyUI.git && \
+cd ComfyUI && \
+pip install -r requirements.txt && \
+cd custom_nodes && \
+git clone https://github.com/ltdrdata/ComfyUI-Manager.git && \
+cd .. && \
+mkdir -p models/ultralytics models/sams && \
+wget -q -O models/ultralytics/face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" && \
+wget -q -O models/sams/sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" && \
+python main.py --listen 0.0.0.0 --port 8188 --dont-print-server
 ```
 
-### 3. Update Your Client Code
-Use the serverless client code from `COMPLETE_INTEGRATION_GUIDE.md`
+## 📋 **Step 3: Install Custom Nodes via ComfyUI Manager**
 
-## 🎯 Expected Results
+Once ComfyUI starts:
 
-### Cost Savings
-- **Before**: $648/month (hourly GPU)
-- **After**: $4-40/month (serverless)
-- **Savings**: 95-99% cost reduction!
+1. **Access ComfyUI Web Interface** (RunPod will provide the URL)
+2. **Click "Manager" button** (should appear in the interface)
+3. **Install Custom Nodes:**
+   - Search for "Impact Pack" → Install
+   - Search for "WAS Node Suite" → Install  
+   - Search for "ReActor" → Install
+   - Search for "Masquerade" → Install
 
-### Performance
-- **Build time**: 10-20 minutes (vs 2+ hours locally)
-- **Reliability**: Much higher success rate
-- **Maintenance**: Automatic updates from GitHub
+4. **Restart ComfyUI** after installation
 
-## 🔄 Workflow Updates
+## 🔧 **Step 4: Configure Environment Variables**
 
-When you make changes to your code:
-1. Push to GitHub
-2. RunPod automatically rebuilds the endpoint
-3. New version is deployed automatically
-4. No manual Docker builds needed!
+In your RunPod serverless endpoint, set these environment variables:
 
-## 🎉 Why This Approach is Better
+```bash
+PYTHONUNBUFFERED=1
+COMFYUI_PORT=8188
+CUDA_VISIBLE_DEVICES=0
+```
 
-1. **Eliminates Docker build issues** (I/O errors, timeouts)
-2. **Faster deployment** (RunPod's infrastructure)
-3. **Automatic CI/CD** (GitHub integration)
-4. **Version control** (tied to your Git commits)
-5. **Easier maintenance** (no local Docker management)
-6. **Better reliability** (RunPod's build environment)
+## 🎯 **Expected Results**
 
-Your face morphing app will be profitable and scalable with this approach!
+After this setup:
+- ✅ All Python dependencies installed (cv2, numba, etc.)
+- ✅ ComfyUI Manager available for easy node management
+- ✅ Custom nodes properly installed and working
+- ✅ Face detection models downloaded
+- ✅ GitHub sync keeps everything updated
+
+## 🔍 **Verify Installation**
+
+Check the RunPod logs for:
+```
+✅ Installing missing dependencies...
+✅ Installing ComfyUI Manager...
+✅ Downloading face detection models...
+✅ Setup complete! Starting ComfyUI...
+✅ Import times for custom nodes:
+✅   ComfyUI-Impact-Pack: loaded successfully
+```
+
+## 💡 **Pro Tips**
+
+1. **Use ComfyUI Manager** - Much more reliable than manual git clones
+2. **GitHub sync** - Automatically pulls your latest code changes
+3. **Persistent storage** - Models stay downloaded between runs
+4. **Environment variables** - Configure settings without code changes
+
+## 🆘 **Troubleshooting**
+
+If custom nodes still fail:
+1. **Check ComfyUI Manager logs** in the web interface
+2. **Manually install** problematic nodes via Manager
+3. **Restart the endpoint** after installing nodes
+4. **Check model paths** are correct
+
+---
+
+**This approach is much more reliable and maintainable than hardcoded Dockerfile installations!** 🚀
