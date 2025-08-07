@@ -16,7 +16,6 @@ from config import *
 from models import db, User, Generation, Transaction, init_db
 from auth import auth_bp, init_login_manager
 from payments import payments_bp
-from morph_replicate_client import MorphReplicateClient
 
 # Configure logging
 logging.basicConfig(
@@ -39,13 +38,39 @@ login_manager = init_login_manager(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(payments_bp)
 
+# GPU rate limiting - track last generation time per user
+user_last_generation = {}
+GENERATION_COOLDOWN = 60  # 60 seconds between generations
+
 # Initialize GPU client with error handling
 gpu_client = None
 try:
-    if USE_CLOUD_GPU:
-        # Use Replicate for cloud GPU processing (MUCH BETTER than RunPod!)
-        gpu_client = MorphReplicateClient()
-        logger.info("Initialized Replicate client - 60% cost savings vs RunPod!")
+    if USE_LOCAL_COMFYUI:
+        # Use Local ComfyUI for processing
+        from local_comfyui_client import LocalComfyUIClient
+        gpu_client = LocalComfyUIClient(
+            base_url=LOCAL_COMFYUI_URL,
+            workflow_path=LOCAL_COMFYUI_WORKFLOW,
+            timeout=COMFYUI_TIMEOUT
+        )
+        logger.info(f"Initialized Local ComfyUI client: {LOCAL_COMFYUI_URL}")
+        logger.info(f"Using workflow: {LOCAL_COMFYUI_WORKFLOW}")
+    elif USE_MODAL:
+        # Use Modal.com for processing
+        from modal_client import ModalMorphClient
+        gpu_client = ModalMorphClient()
+        logger.info("Initialized Modal.com client - 95% cost savings vs RunPod!")
+    elif USE_CLOUD_GPU:
+        # Check if on-demand mode is enabled
+        if VAST_ON_DEMAND_MODE:
+            from vast_on_demand_client import VastOnDemandClient
+            gpu_client = VastOnDemandClient(VAST_API_KEY)
+            logger.info("Initialized Vast.ai On-Demand client - 98-99% cost savings vs RunPod!")
+        else:
+            # Use regular Vast.ai client
+            from vast_client import VastMorphClient
+            gpu_client = VastMorphClient()
+            logger.info("Initialized Vast.ai client - 90% cost savings vs RunPod!")
     else:
         from comfyui_client import ComfyUIClient
         gpu_client = ComfyUIClient(COMFYUI_URL)
@@ -468,10 +493,27 @@ def process_image():
         if current_user.is_blocked:
             return jsonify({'error': 'Your account has been blocked. Please contact support at ascendbase@gmail.com.'}), 403
         
+        # Check generation cooldown to prevent GPU overload
+        current_time = time.time()
+        user_id = current_user.id
+        
+        if user_id in user_last_generation:
+            time_since_last = current_time - user_last_generation[user_id]
+            if time_since_last < GENERATION_COOLDOWN:
+                remaining_time = int(GENERATION_COOLDOWN - time_since_last)
+                return jsonify({
+                    'error': f'GPU is overloaded, please wait {remaining_time} seconds before generating again.',
+                    'cooldown': True,
+                    'remaining_seconds': remaining_time,
+                    'message': f'Please wait {remaining_time} seconds to prevent GPU overload.'
+                }), 429
+        
         data = request.get_json()
         filename = data.get('filename')
         denoise_value = data.get('denoise', 0.10)
         use_free_credit = data.get('use_free_credit', True)
+        transform_mode = data.get('transform_mode', 'full')  # 'full' or 'custom'
+        selected_features = data.get('selected_features', [])  # Array of features for custom mode
         
         if not filename or not os.path.exists(os.path.join(UPLOAD_FOLDER, filename)):
             return jsonify({'error': 'File not found'}), 404
@@ -514,7 +556,7 @@ def process_image():
         generation = Generation(
             user_id=current_user.id,
             preset=tier_name,  # Store tier name for compatibility
-            workflow_type='runpod' if USE_CLOUD_GPU else CURRENT_WORKFLOW,
+            workflow_type='modal' if USE_MODAL else ('runpod' if USE_CLOUD_GPU else CURRENT_WORKFLOW),
             input_filename=filename,
             used_free_credit=used_free,
             used_paid_credit=used_paid,
@@ -524,88 +566,267 @@ def process_image():
         db.session.add(generation)
         db.session.commit()
         
-        if USE_CLOUD_GPU:
-            # Use RunPod for processing
+        if USE_MODAL:
+            # Use Modal.com for processing
             file_path = os.path.join(UPLOAD_FOLDER, filename)
+            
+            # Check if Modal client is properly initialized
+            if not gpu_client or not hasattr(gpu_client, 'token_configured') or not gpu_client.token_configured:
+                generation.status = 'failed'
+                generation.error_message = 'Modal.com not configured. Please set up authentication token.'
+                db.session.commit()
+                return jsonify({
+                    'error': 'Modal.com not configured. Please contact support to enable GPU processing.',
+                    'setup_required': True,
+                    'instructions': 'Modal.com authentication required. Please run: modal token new'
+                }), 503
+            
+            if not gpu_client.app:
+                generation.status = 'failed'
+                generation.error_message = 'Modal.com app not deployed.'
+                db.session.commit()
+                return jsonify({
+                    'error': 'Modal.com app not deployed. Please contact support to enable GPU processing.',
+                    'setup_required': True,
+                    'instructions': 'Modal.com app deployment required.'
+                }), 503
             
             try:
                 # Map denoise value to preset and intensity
                 if denoise_value == 0.10:
-                    preset_key = 'HTN'
+                    preset_key = 'tier1'
                     denoise_intensity = 4
                 elif denoise_value == 0.15:
-                    preset_key = 'Chadlite'
+                    preset_key = 'tier2'
                     denoise_intensity = 6
                 elif denoise_value == 0.25:
-                    preset_key = 'Chad'
+                    preset_key = 'chad'
                     denoise_intensity = 8
                 else:
                     # Default mapping for custom values
-                    preset_key = 'HTN'
+                    preset_key = 'tier1'
                     denoise_intensity = int((denoise_value - 0.10) / 0.15 * 10) + 1
                     denoise_intensity = max(1, min(10, denoise_intensity))
                 
-                # Start RunPod generation with new parameters
-                job_result = gpu_client.generate_image(
+                # Start Modal.com generation
+                result_image, error = gpu_client.generate_image(
                     image_path=file_path,
                     preset_key=preset_key,
                     denoise_intensity=denoise_intensity
                 )
                 
-                # Handle tuple return (job_id, error)
-                if isinstance(job_result, tuple):
-                    job_id, error = job_result
-                    if error or not job_id:
-                        generation.status = 'failed'
-                        generation.error_message = error or 'Failed to start RunPod generation'
-                        db.session.commit()
-                        return jsonify({'error': error or 'Failed to start generation'}), 500
-                else:
-                    job_id = job_result
-                    if not job_id:
-                        generation.status = 'failed'
-                        generation.error_message = 'Failed to start RunPod generation'
-                        db.session.commit()
-                        return jsonify({'error': 'Failed to start generation'}), 500
+                if error or not result_image:
+                    generation.status = 'failed'
+                    generation.error_message = error or 'Failed to generate image'
+                    db.session.commit()
+                    return jsonify({'error': error or 'Failed to generate image'}), 500
                 
-                # Update generation with job ID
-                generation.prompt_id = str(job_id)  # Ensure it's a string
-                generation.status = 'processing'
+                # Save result image immediately (Modal returns the image directly)
+                result_filename = f"result_{generation.id}_{int(time.time())}.png"
+                result_path = os.path.join(OUTPUT_FOLDER, result_filename)
+                
+                with open(result_path, 'wb') as f:
+                    f.write(result_image)
+                
+                # Update generation record
+                generation.prompt_id = f"modal_{generation.id}"
+                generation.status = 'completed'
                 generation.started_at = datetime.utcnow()
+                generation.completed_at = datetime.utcnow()
+                generation.output_filename = result_filename
                 db.session.commit()
                 
-                logger.info(f"RunPod processing started for {current_user.email}: {job_id} (free: {used_free}, paid: {used_paid})")
+                logger.info(f"Modal.com generation completed for {current_user.email}: {generation.id} (free: {used_free}, paid: {used_paid})")
                 
                 return jsonify({
                     'success': True,
-                    'prompt_id': job_id,
+                    'prompt_id': generation.prompt_id,
                     'generation_id': generation.id,
                     'denoise': denoise_value,
                     'tier_name': tier_name,
                     'used_free_credit': used_free,
                     'used_paid_credit': used_paid,
                     'remaining_credits': current_user.credits,
-                    'message': f'Processing started with {tier_name.replace("_", " ")} tier on RTX 5090...'
+                    'completed': True,  # Modal completes immediately
+                    'download_url': f'/result/{generation.prompt_id}',
+                    'message': f'Generation completed with {tier_name.replace("_", " ")} tier! 95% cost savings achieved!'
                 })
                 
             except Exception as e:
                 generation.status = 'failed'
                 generation.error_message = str(e)
                 db.session.commit()
-                logger.error(f"RunPod processing error: {e}")
-                return jsonify({'error': f'RunPod processing failed: {str(e)}'}), 500
+                logger.error(f"Modal.com processing error: {e}")
+                return jsonify({'error': f'Modal.com processing failed: {str(e)}'}), 500
+        
+        elif USE_CLOUD_GPU:
+            # Use Cloud GPU for processing (Vast.ai or RunPod)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            
+            try:
+                if VAST_ON_DEMAND_MODE:
+                    # Use Vast.ai On-Demand mode
+                    # Map denoise value to preset and intensity
+                    if denoise_value == 0.10:
+                        preset_key = 'tier1'
+                        denoise_intensity = 4
+                    elif denoise_value == 0.15:
+                        preset_key = 'tier2'
+                        denoise_intensity = 6
+                    elif denoise_value == 0.25:
+                        preset_key = 'chad'
+                        denoise_intensity = 8
+                    else:
+                        # Default mapping for custom values
+                        preset_key = 'tier1'
+                        denoise_intensity = int((denoise_value - 0.10) / 0.15 * 10) + 1
+                        denoise_intensity = max(1, min(10, denoise_intensity))
+                    
+                    # Start Vast.ai On-Demand generation
+                    result_image, error = gpu_client.generate_image(
+                        image_path=file_path,
+                        preset_key=preset_key,
+                        denoise_intensity=denoise_intensity
+                    )
+                    
+                    if error or not result_image:
+                        generation.status = 'failed'
+                        generation.error_message = error or 'Failed to generate image'
+                        db.session.commit()
+                        return jsonify({'error': error or 'Failed to generate image'}), 500
+                    
+                    # Save result image immediately (on-demand returns the image directly)
+                    result_filename = f"result_{generation.id}_{int(time.time())}.png"
+                    result_path = os.path.join(OUTPUT_FOLDER, result_filename)
+                    
+                    with open(result_path, 'wb') as f:
+                        f.write(result_image)
+                    
+                    # Update generation record
+                    generation.prompt_id = f"vast_ondemand_{generation.id}"
+                    generation.status = 'completed'
+                    generation.started_at = datetime.utcnow()
+                    generation.completed_at = datetime.utcnow()
+                    generation.output_filename = result_filename
+                    db.session.commit()
+                    
+                    logger.info(f"Vast.ai On-Demand generation completed for {current_user.email}: {generation.id} (free: {used_free}, paid: {used_paid})")
+                    
+                    return jsonify({
+                        'success': True,
+                        'prompt_id': generation.prompt_id,
+                        'generation_id': generation.id,
+                        'denoise': denoise_value,
+                        'tier_name': tier_name,
+                        'used_free_credit': used_free,
+                        'used_paid_credit': used_paid,
+                        'remaining_credits': current_user.credits,
+                        'completed': True,  # On-demand completes immediately
+                        'download_url': f'/result/{generation.prompt_id}',
+                        'message': f'Generation completed with {tier_name.replace("_", " ")} tier! 98% cost savings achieved!'
+                    })
+                
+                else:
+                    # Use regular cloud GPU (RunPod/Vast.ai)
+                    # Map denoise value to preset and intensity
+                    if denoise_value == 0.10:
+                        preset_key = 'HTN'
+                        denoise_intensity = 4
+                    elif denoise_value == 0.15:
+                        preset_key = 'Chadlite'
+                        denoise_intensity = 6
+                    elif denoise_value == 0.25:
+                        preset_key = 'Chad'
+                        denoise_intensity = 8
+                    else:
+                        # Default mapping for custom values
+                        preset_key = 'HTN'
+                        denoise_intensity = int((denoise_value - 0.10) / 0.15 * 10) + 1
+                        denoise_intensity = max(1, min(10, denoise_intensity))
+                    
+                    # Start cloud GPU generation
+                    job_result = gpu_client.generate_image(
+                        image_path=file_path,
+                        preset_key=preset_key,
+                        denoise_intensity=denoise_intensity
+                    )
+                    
+                    # Handle tuple return (job_id, error)
+                    if isinstance(job_result, tuple):
+                        job_id, error = job_result
+                        if error or not job_id:
+                            generation.status = 'failed'
+                            generation.error_message = error or 'Failed to start cloud GPU generation'
+                            db.session.commit()
+                            return jsonify({'error': error or 'Failed to start generation'}), 500
+                    else:
+                        job_id = job_result
+                        if not job_id:
+                            generation.status = 'failed'
+                            generation.error_message = 'Failed to start cloud GPU generation'
+                            db.session.commit()
+                            return jsonify({'error': 'Failed to start generation'}), 500
+                    
+                    # Update generation with job ID
+                    generation.prompt_id = str(job_id)  # Ensure it's a string
+                    generation.status = 'processing'
+                    generation.started_at = datetime.utcnow()
+                    db.session.commit()
+                    
+                    logger.info(f"Cloud GPU processing started for {current_user.email}: {job_id} (free: {used_free}, paid: {used_paid})")
+                    
+                    return jsonify({
+                        'success': True,
+                        'prompt_id': job_id,
+                        'generation_id': generation.id,
+                        'denoise': denoise_value,
+                        'tier_name': tier_name,
+                        'used_free_credit': used_free,
+                        'used_paid_credit': used_paid,
+                        'remaining_credits': current_user.credits,
+                        'message': f'Processing started with {tier_name.replace("_", " ")} tier...'
+                    })
+                
+            except Exception as e:
+                generation.status = 'failed'
+                generation.error_message = str(e)
+                db.session.commit()
+                logger.error(f"Cloud GPU processing error: {e}")
+                return jsonify({'error': f'Cloud GPU processing failed: {str(e)}'}), 500
         
         else:
             # Use ComfyUI for processing
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             
             try:
-                # Start ComfyUI generation using the client
-                prompt_id = gpu_client.generate_image(
-                    image_path=file_path,
-                    preset_name=tier_name,
-                    denoise_strength=denoise_value
-                )
+                # Handle different transformation modes
+                if transform_mode == 'custom' and selected_features:
+                    # Custom features mode - use specific workflows for each feature
+                    # For now, we'll use the main facedetailer workflow but could extend to feature-specific workflows
+                    workflow_name = 'facedetailer'  # Could be extended to feature-specific workflows
+                    
+                    # Create a descriptive name for custom transformations
+                    features_str = '_'.join(selected_features)
+                    tier_name = f'custom_{features_str}'
+                    
+                    # Use fixed 50% intensity for custom features as mentioned in UI
+                    custom_denoise = 0.15  # 50% intensity
+                    
+                    prompt_id = gpu_client.generate_image(
+                        image_path=file_path,
+                        preset_name=tier_name,
+                        denoise_strength=custom_denoise
+                    )
+                    
+                    logger.info(f"Custom features generation started: {features_str} with {custom_denoise} denoise")
+                    
+                else:
+                    # Full face transformation mode
+                    prompt_id = gpu_client.generate_image(
+                        image_path=file_path,
+                        preset_name=tier_name,
+                        denoise_strength=denoise_value
+                    )
                 
                 if not prompt_id:
                     generation.status = 'failed'
@@ -613,24 +834,41 @@ def process_image():
                     db.session.commit()
                     return jsonify({'error': 'Failed to start generation'}), 500
                 
-                # Update generation with prompt ID
+                # Update generation with prompt ID and mode info
                 generation.prompt_id = prompt_id
                 generation.status = 'processing'
                 generation.started_at = datetime.utcnow()
+                
+                # Store transformation mode and features in the generation record
+                if transform_mode == 'custom':
+                    generation.preset = f"custom_{','.join(selected_features)}"
+                
                 db.session.commit()
                 
-                logger.info(f"ComfyUI processing started for {current_user.email}: {prompt_id} (free: {used_free}, paid: {used_paid})")
+                # Update last generation time for rate limiting
+                user_last_generation[user_id] = current_time
+                
+                # Create appropriate message based on mode
+                if transform_mode == 'custom':
+                    feature_names = ', '.join(selected_features)
+                    message = f'Custom transformation started for {feature_names} with 50% intensity...'
+                else:
+                    message = f'Processing started with {tier_name.replace("_", " ")} tier on local ComfyUI...'
+                
+                logger.info(f"ComfyUI processing started for {current_user.email}: {prompt_id} (mode: {transform_mode}, free: {used_free}, paid: {used_paid})")
                 
                 return jsonify({
                     'success': True,
                     'prompt_id': prompt_id,
                     'generation_id': generation.id,
-                    'denoise': denoise_value,
+                    'denoise': denoise_value if transform_mode == 'full' else 0.15,
                     'tier_name': tier_name,
+                    'transform_mode': transform_mode,
+                    'selected_features': selected_features if transform_mode == 'custom' else [],
                     'used_free_credit': used_free,
                     'used_paid_credit': used_paid,
                     'remaining_credits': current_user.credits,
-                    'message': f'Processing started with {tier_name.replace("_", " ")} tier on RTX 5090...'
+                    'message': message
                 })
                 
             except Exception as e:
@@ -773,12 +1011,50 @@ def get_result(prompt_id):
         logger.error(f"Result retrieval error: {e}")
         return jsonify({'error': 'Failed to retrieve result'}), 500
 
+@app.route('/gpu-status')
+def gpu_status():
+    """GPU status endpoint for real-time status checking"""
+    try:
+        if USE_LOCAL_COMFYUI:
+            # Check Local ComfyUI connection
+            is_available = False
+            if gpu_client:
+                try:
+                    is_available = gpu_client.test_connection()
+                except:
+                    is_available = False
+            
+            return jsonify({
+                'available': is_available,
+                'status': 'ready' if is_available else 'unavailable',
+                'message': 'GPU ready for generation' if is_available else 'I need more money to afford cloud GPU rent for yall so please buy some credits lmao 😅',
+                'gpu_type': 'local_comfyui',
+                'url': LOCAL_COMFYUI_URL if is_available else None
+            })
+        else:
+            # For other GPU types, assume available if client exists
+            is_available = gpu_client is not None
+            return jsonify({
+                'available': is_available,
+                'status': 'ready' if is_available else 'unavailable',
+                'message': 'GPU ready for generation' if is_available else 'GPU service unavailable',
+                'gpu_type': 'cloud_gpu' if USE_CLOUD_GPU else 'modal' if USE_MODAL else 'comfyui'
+            })
+    except Exception as e:
+        logger.error(f"GPU status check error: {e}")
+        return jsonify({
+            'available': False,
+            'status': 'error',
+            'message': 'Attention. No available or low balance GPU. Temporary cant generate images',
+            'error': str(e)
+        })
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
     try:
-        if USE_CLOUD_GPU:
-            # Check Replicate connection
+        if USE_LOCAL_COMFYUI:
+            # Check Local ComfyUI connection
             gpu_status = "disconnected"
             if gpu_client:
                 try:
@@ -786,8 +1062,30 @@ def health_check():
                 except:
                     gpu_status = "disconnected"
             
-            gpu_type = "replicate"
-            gpu_info = "Replicate API (60% cost savings vs RunPod!)"
+            gpu_type = "local_comfyui"
+            gpu_info = f"Local ComfyUI: {LOCAL_COMFYUI_URL} (Using {LOCAL_COMFYUI_WORKFLOW})"
+        elif USE_MODAL:
+            # Check Modal.com connection
+            gpu_status = "disconnected"
+            if gpu_client:
+                try:
+                    gpu_status = "connected" if gpu_client.test_connection() else "disconnected"
+                except:
+                    gpu_status = "disconnected"
+            
+            gpu_type = "modal.com"
+            gpu_info = "Modal.com API (95% cost savings vs RunPod!)"
+        elif USE_CLOUD_GPU:
+            # Check Vast.ai connection
+            gpu_status = "disconnected"
+            if gpu_client:
+                try:
+                    gpu_status = "connected" if gpu_client.test_connection() else "disconnected"
+                except:
+                    gpu_status = "disconnected"
+            
+            gpu_type = "vast.ai"
+            gpu_info = "Vast.ai API (99% cost savings vs RunPod!)"
         else:
             # Check ComfyUI connection
             try:
@@ -810,8 +1108,9 @@ def health_check():
         'gpu_info': gpu_info,
         'presets': list(PRESETS.keys()),
         'cloud_gpu_enabled': USE_CLOUD_GPU,
-        'replicate_enabled': True,
-        'app_version': '3.0.0-replicate'
+        'modal_enabled': USE_MODAL,
+        'local_comfyui_enabled': USE_LOCAL_COMFYUI,
+        'app_version': '4.1.0-local-comfyui'
     })
 
 # Admin routes

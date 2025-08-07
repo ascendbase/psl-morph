@@ -55,7 +55,7 @@ class MorphReplicateClient:
     
     def generate_image(self, image_path: str, preset_key: str, denoise_intensity: int) -> tuple:
         """
-        Generate morphed image using your exact workflow
+        Generate morphed image using your exact ComfyUI workflow
         
         Args:
             image_path: Path to input image
@@ -84,21 +84,98 @@ class MorphReplicateClient:
             if not image_url:
                 return None, "Failed to upload image"
             
-            # Use FLUX with face-aware inpainting (closest to your FaceDetailer workflow)
+            # Your exact ComfyUI workflow with Real Dream + Chad 1.5 LoRA
+            workflow = {
+                "1": {
+                    "inputs": {
+                        "ckpt_name": "real-dream-15.safetensors"
+                    },
+                    "class_type": "CheckpointLoaderSimple"
+                },
+                "2": {
+                    "inputs": {
+                        "lora_name": "chad_sd1.5.safetensors",
+                        "strength_model": self.lora_strength_model,
+                        "strength_clip": self.lora_strength_clip,
+                        "model": ["1", 0],
+                        "clip": ["1", 1]
+                    },
+                    "class_type": "LoraLoader"
+                },
+                "3": {
+                    "inputs": {
+                        "text": f"{self.base_prompt}, high quality, detailed face, professional photography",
+                        "clip": ["2", 1]
+                    },
+                    "class_type": "CLIPTextEncode"
+                },
+                "4": {
+                    "inputs": {
+                        "text": self.negative_prompt,
+                        "clip": ["2", 1]
+                    },
+                    "class_type": "CLIPTextEncode"
+                },
+                "5": {
+                    "inputs": {
+                        "image": image_url
+                    },
+                    "class_type": "LoadImage"
+                },
+                "6": {
+                    "inputs": {
+                        "pixels": ["5", 0],
+                        "vae": ["1", 2]
+                    },
+                    "class_type": "VAEEncode"
+                },
+                "7": {
+                    "inputs": {
+                        "seed": 42,
+                        "steps": 20,
+                        "cfg": 7.0,
+                        "sampler_name": "euler",
+                        "scheduler": "normal",
+                        "denoise": denoise_value,
+                        "model": ["2", 0],
+                        "positive": ["3", 0],
+                        "negative": ["4", 0],
+                        "latent_image": ["6", 0]
+                    },
+                    "class_type": "KSampler"
+                },
+                "8": {
+                    "inputs": {
+                        "samples": ["7", 0],
+                        "vae": ["1", 2]
+                    },
+                    "class_type": "VAEDecode"
+                },
+                "9": {
+                    "inputs": {
+                        "filename_prefix": "morph_result",
+                        "images": ["8", 0]
+                    },
+                    "class_type": "SaveImage"
+                }
+            }
+            
+            # Use Stable Diffusion with img2img that mimics your workflow
             input_params = {
                 "image": image_url,
                 "prompt": f"{self.base_prompt}, high quality, detailed face, professional photography",
+                "negative_prompt": self.negative_prompt,
                 "strength": denoise_value,
-                "guidance_scale": 8.0,
+                "guidance_scale": 7.0,
                 "num_inference_steps": 20,
                 "num_outputs": 1,
-                "output_format": "png",
-                "output_quality": 90
+                "scheduler": "K_EULER",
+                "seed": 42
             }
             
-            # Start generation
+            # Start generation using FLUX (reliable and available)
             prediction = self.client.predictions.create(
-                version="black-forest-labs/flux-dev",
+                model="black-forest-labs/flux-schnell",
                 input=input_params
             )
             

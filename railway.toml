@@ -10,3 +10,5 @@ restartPolicyMaxRetries = 10
 [env]
 ENVIRONMENT = "production"
 PORT = "5000"
+USE_CLOUD_GPU = "true"
+VAST_API_KEY = "${{VAST_API_KEY}}"

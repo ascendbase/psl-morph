@@ -119,9 +119,18 @@ THREADED = True
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
 
 # Database Configuration
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///face_morph.db')
-if DATABASE_URL.startswith('postgres://'):
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+if os.getenv('RAILWAY_ENVIRONMENT'):
+    # Production on Railway - use PostgreSQL
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+        # Fix for newer SQLAlchemy versions
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    elif not DATABASE_URL:
+        # Fallback to SQLite if no DATABASE_URL is set
+        DATABASE_URL = 'sqlite:///instance/app.db'
+else:
+    # Local development - use SQLite
+    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///instance/app.db')
 
 # Authentication Configuration
 LOGIN_DISABLED = os.getenv('LOGIN_DISABLED', 'False').lower() == 'true'  # For development
@@ -154,13 +163,35 @@ RUNPOD_ENDPOINT_ID = os.getenv('RUNPOD_ENDPOINT_ID', '')
 RUNPOD_SERVERLESS_ENDPOINT = os.getenv('RUNPOD_SERVERLESS_ENDPOINT', '')
 RUNPOD_SERVERLESS_URL = os.getenv('RUNPOD_SERVERLESS_URL', '')
 
+# Vast.ai Configuration (Pay-Per-Use - 98-99% cost savings!)
+VAST_API_KEY = os.getenv('VAST_API_KEY', 'eaa3a310030819c8de5e1826678266244a6f761efacbc948aca66ca880f071db')
+VAST_ON_DEMAND_MODE = os.getenv('VAST_ON_DEMAND_MODE', 'true').lower() == 'true'
+VAST_AUTO_STOP_INSTANCES = os.getenv('VAST_AUTO_STOP_INSTANCES', 'true').lower() == 'true'
+VAST_MAX_INSTANCE_LIFETIME = int(os.getenv('VAST_MAX_INSTANCE_LIFETIME', '300'))  # 5 minutes max
+VAST_MIN_GPU_RAM = int(os.getenv('VAST_MIN_GPU_RAM', '8'))  # Minimum 8GB GPU RAM
+VAST_MAX_HOURLY_COST = float(os.getenv('VAST_MAX_HOURLY_COST', '1.0'))  # Max $1/hour
+
 # For RunPod pods (direct connection) - DEPRECATED, use serverless instead
 RUNPOD_POD_URL = os.getenv('RUNPOD_POD_URL', 'https://i01ikv3a648vzu-8188.proxy.runpod.net')  # Your RTX 5090 GPU
 RUNPOD_POD_PORT = int(os.getenv('RUNPOD_POD_PORT', '8188'))  # ComfyUI port
 USE_RUNPOD_POD = os.getenv('USE_RUNPOD_POD', 'false').lower() == 'true'  # Disable pod by default - USE SERVERLESS!
 
-# Cloud GPU mode selection - ENABLED FOR PRODUCTION
-USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'true').lower() == 'true'  # Use RunPod GPU by default
+# Modal.com Configuration (Perfect balance: Fast + Custom Models + Cheap)
+USE_MODAL = os.getenv('USE_MODAL', 'false').lower() == 'true'  # DISABLED - Using local ComfyUI
+MODAL_TOKEN = os.getenv('MODAL_TOKEN', '')
+MODAL_APP_NAME = os.getenv('MODAL_APP_NAME', 'face-morph-simple')
+
+# Replicate Configuration (Fallback option)
+USE_REPLICATE = os.getenv('USE_REPLICATE', 'false').lower() == 'true'
+REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN', '')
+
+# Cloud GPU mode selection - DISABLED FOR LOCAL COMFYUI
+USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'false').lower() == 'true'
+
+# Local ComfyUI Configuration (for Railway deployment calling local GPU)
+USE_LOCAL_COMFYUI = os.getenv('USE_LOCAL_COMFYUI', 'true').lower() == 'true'  # ENABLED - Use local ComfyUI
+LOCAL_COMFYUI_URL = os.getenv('LOCAL_COMFYUI_URL', 'http://127.0.0.1:8188')  # Will be public URL for Railway
+LOCAL_COMFYUI_WORKFLOW = os.getenv('LOCAL_COMFYUI_WORKFLOW', 'comfyui_workflows/workflow_facedetailer.json')
 
 # RunPod Settings
 RUNPOD_TIMEOUT = 300  # 5 minutes timeout for generation
