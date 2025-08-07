@@ -44,6 +44,8 @@ Transform faces with AI-powered morphing using your custom LoRA models with clou
 
 > 📋 **New**: The app now supports both cloud GPU (RunPod) and local ComfyUI processing!
 
+> 💰 **Cost Savings**: Switch to RunPod serverless endpoints to reduce costs by over 80% compared to dedicated pods. See [RUNPOD_SERVERLESS_SETUP.md](RUNPOD_SERVERLESS_SETUP.md) for migration instructions.
+
 ## ☁️ RunPod Cloud GPU Setup
 
 ### Step 1: Create RunPod Endpoint
