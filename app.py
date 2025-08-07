@@ -39,28 +39,35 @@ login_manager = init_login_manager(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(payments_bp)
 
-# Initialize GPU client
+# Initialize GPU client with error handling
 gpu_client = None
-if USE_CLOUD_GPU:
-    if USE_RUNPOD_POD:
-        # Use RunPod pod (direct connection to ComfyUI) - DEPRECATED
-        from runpod_pod_client import RunPodPodClient
-        gpu_client = RunPodPodClient(
-            pod_url=RUNPOD_POD_URL,
-            pod_port=RUNPOD_POD_PORT
-        )
-        logger.info(f"Initialized RunPod Pod client: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}")
+try:
+    if USE_CLOUD_GPU:
+        if USE_RUNPOD_POD:
+            # Use RunPod pod (direct connection to ComfyUI) - DEPRECATED
+            from runpod_pod_client import RunPodPodClient
+            gpu_client = RunPodPodClient(
+                pod_url=RUNPOD_POD_URL,
+                pod_port=RUNPOD_POD_PORT
+            )
+            logger.info(f"Initialized RunPod Pod client: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}")
+        else:
+            # Use RunPod serverless endpoint (RECOMMENDED - 95-99% cost savings!)
+            if RUNPOD_API_KEY and (RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID):
+                gpu_client = RunPodClient(
+                    api_key=RUNPOD_API_KEY,
+                    endpoint_id=RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID
+                )
+                logger.info(f"Initialized RunPod serverless client with endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID}")
+            else:
+                logger.warning("RunPod credentials not configured, GPU client will be initialized later")
     else:
-        # Use RunPod serverless endpoint (RECOMMENDED - 95-99% cost savings!)
-        gpu_client = RunPodClient(
-            api_key=RUNPOD_API_KEY,
-            endpoint_id=RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID
-        )
-        logger.info(f"Initialized RunPod serverless client with endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID}")
-else:
-    from comfyui_client import ComfyUIClient
-    gpu_client = ComfyUIClient(COMFYUI_URL)
-    logger.info(f"Initialized ComfyUI client: {COMFYUI_URL}")
+        from comfyui_client import ComfyUIClient
+        gpu_client = ComfyUIClient(COMFYUI_URL)
+        logger.info(f"Initialized ComfyUI client: {COMFYUI_URL}")
+except Exception as e:
+    logger.error(f"Failed to initialize GPU client: {e}")
+    logger.info("App will continue without GPU client - it will be initialized when needed")
 
 # Create directories if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -761,27 +768,33 @@ def health_check():
     try:
         if USE_CLOUD_GPU:
             # Check RunPod connection
-            gpu_status = "connected" if gpu_client.test_connection() else "disconnected"
+            gpu_status = "disconnected"
+            if gpu_client:
+                try:
+                    gpu_status = "connected" if gpu_client.test_connection() else "disconnected"
+                except:
+                    gpu_status = "disconnected"
+            
             if USE_RUNPOD_POD:
                 gpu_type = "runpod_pod"
                 gpu_info = f"Pod: {RUNPOD_POD_URL}:{RUNPOD_POD_PORT}"
             else:
                 gpu_type = "runpod_serverless"
-                gpu_info = f"Endpoint: {RUNPOD_ENDPOINT_ID}"
+                gpu_info = f"Endpoint: {RUNPOD_SERVERLESS_ENDPOINT or RUNPOD_ENDPOINT_ID or 'not_configured'}"
         else:
             # Check ComfyUI connection
-            response = requests.get(f"{COMFYUI_URL}/system_stats", timeout=5)
-            gpu_status = "connected" if response.status_code == 200 else "disconnected"
+            try:
+                response = requests.get(f"{COMFYUI_URL}/system_stats", timeout=5)
+                gpu_status = "connected" if response.status_code == 200 else "disconnected"
+            except:
+                gpu_status = "disconnected"
             gpu_type = "comfyui"
             gpu_info = f"Local: {COMFYUI_URL}"
-    except:
-        gpu_status = "disconnected"
-        if USE_CLOUD_GPU:
-            gpu_type = "runpod_pod" if USE_RUNPOD_POD else "runpod_serverless"
-            gpu_info = f"Pod: {RUNPOD_POD_URL}" if USE_RUNPOD_POD else f"Endpoint: {RUNPOD_ENDPOINT_ID}"
-        else:
-            gpu_type = "comfyui"
-            gpu_info = f"Local: {COMFYUI_URL}"
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        gpu_status = "error"
+        gpu_type = "unknown"
+        gpu_info = "Health check failed"
     
     return jsonify({
         'status': 'healthy',
@@ -790,7 +803,8 @@ def health_check():
         'gpu_info': gpu_info,
         'presets': list(PRESETS.keys()),
         'cloud_gpu_enabled': USE_CLOUD_GPU,
-        'runpod_pod_enabled': USE_RUNPOD_POD
+        'runpod_pod_enabled': USE_RUNPOD_POD,
+        'app_version': '2.0.0-serverless'
     })
 
 # Admin routes
