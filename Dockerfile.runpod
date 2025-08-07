@@ -36,11 +36,19 @@ RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
 
 # Install the specific dependencies that ComfyUI Manager installs
 # Based on your successful log: segment-anything, scikit-image, opencv-python-headless
+# CRITICAL: Add ALL Impact Pack dependencies
 RUN pip install --no-cache-dir \
     "numpy<2" \
     segment-anything \
     scikit-image \
-    opencv-python-headless
+    opencv-python-headless \
+    piexif \
+    ultralytics \
+    huggingface-hub \
+    transformers \
+    accelerate \
+    xformers \
+    controlnet-aux
 
 # Run the Impact Pack install script (mimics what ComfyUI Manager does)
 WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
