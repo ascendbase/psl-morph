@@ -1,0 +1,74 @@
+# Use a smaller, faster base image
+FROM python:3.10-slim
+
+# Install system dependencies including OpenCV requirements
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Clone ComfyUI with shallow clone for speed
+RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
+
+# Install ComfyUI requirements
+WORKDIR /workspace/ComfyUI
+RUN pip install -r requirements.txt
+
+# Install ONLY the dependencies needed for FaceDetailer workflow
+RUN pip install --no-cache-dir \
+    opencv-python-headless \
+    ultralytics \
+    segment-anything
+
+# Install ONLY ComfyUI-Impact-Pack (no other custom nodes)
+WORKDIR /workspace/ComfyUI/custom_nodes
+RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
+
+# Try to install Impact Pack requirements, but don't fail if it doesn't work
+WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
+RUN pip install --no-cache-dir -r requirements.txt || echo "Impact Pack requirements failed - continuing anyway"
+
+# Go back to ComfyUI root
+WORKDIR /workspace/ComfyUI
+
+# Create directories for models
+RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams
+
+# Download required base checkpoint model
+WORKDIR /workspace/ComfyUI/models/checkpoints
+RUN wget --timeout=60 --tries=3 -O real-dream-15.safetensors "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors" || echo "Failed to download real-dream-15.safetensors"
+
+# Download required LoRA model
+WORKDIR /workspace/ComfyUI/models/loras
+RUN wget --timeout=60 --tries=3 -O chad_sd1.5.safetensors "https://civitai.com/api/download/models/87153" || echo "Failed to download chad_sd1.5.safetensors"
+
+# Download FaceDetailer models
+WORKDIR /workspace/ComfyUI/models/ultralytics/bbox
+RUN mkdir -p /workspace/ComfyUI/models/ultralytics/bbox
+RUN wget --timeout=30 --tries=3 -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Failed to download face_yolov8m.pt"
+
+WORKDIR /workspace/ComfyUI/models/sams
+RUN wget --timeout=30 --tries=3 -O sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" || echo "Failed to download sam_vit_b_01ec64.pth"
+
+# Go back to ComfyUI root
+WORKDIR /workspace/ComfyUI
+
+# Expose port
+EXPOSE 8188
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Start ComfyUI
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--dont-print-server"]

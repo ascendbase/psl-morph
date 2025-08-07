@@ -1,0 +1,19 @@
+# Use a working ComfyUI base image
+FROM runpod/worker-comfy:dev-cuda12.1.0
+
+# Set working directory
+WORKDIR /comfyui
+
+# Copy your local models directly
+COPY base_models/real-dream-15.safetensors models/checkpoints/
+COPY lora/chad_sd1.5.safetensors models/loras/
+
+# Ensure proper permissions
+RUN chmod -R 755 models/
+
+# The base image already has ComfyUI and all dependencies
+# Just need to expose the port
+EXPOSE 8188
+
+# Use the existing startup script from base image
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]
