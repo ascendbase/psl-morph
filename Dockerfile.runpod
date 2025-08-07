@@ -1,112 +1,37 @@
-# Use Python 3.12 to match your working local environment
-FROM python:3.12-slim
+# Use Python 3.11 for maximum stability
+FROM python:3.11-slim
 
-# Install system dependencies including OpenCV requirements
+# Install only essential system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     wget \
     curl \
     libgl1-mesa-glx \
     libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libglib2.0-0 \
-    libgtk-3-0 \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /workspace
 
-# Clone ComfyUI with shallow clone for speed
+# Clone ComfyUI (stable version)
 RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
 
-# Install ComfyUI requirements and missing dependencies
+# Install ComfyUI requirements only
 WORKDIR /workspace/ComfyUI
 RUN pip install -r requirements.txt
 
-# Install ComfyUI Manager first (this is the key!)
-WORKDIR /workspace/ComfyUI/custom_nodes
-RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git
+# Create model directories
+RUN mkdir -p models/checkpoints models/loras
 
-# Install Impact Pack using the EXACT method that worked locally
-RUN git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
+# Download your required models
+WORKDIR /workspace/ComfyUI/models/checkpoints
+RUN wget --timeout=60 --tries=3 -O real-dream-15.safetensors "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors"
 
-# Install the specific dependencies that ComfyUI Manager installs
-# Based on your successful log: segment-anything, scikit-image, opencv-python-headless
-# CRITICAL: Add ALL Impact Pack dependencies
-RUN pip install --no-cache-dir \
-    "numpy<2" \
-    segment-anything \
-    scikit-image \
-    opencv-python-headless \
-    piexif \
-    ultralytics \
-    huggingface-hub \
-    transformers \
-    accelerate \
-    xformers \
-    controlnet-aux
-
-# Run the Impact Pack install script (mimics what ComfyUI Manager does)
-WORKDIR /workspace/ComfyUI/custom_nodes/ComfyUI-Impact-Pack
-RUN python install.py || echo "Install script completed"
-
-# Install additional dependencies for other nodes
-RUN pip install --no-cache-dir \
-    insightface \
-    onnxruntime \
-    facexlib \
-    gfpgan \
-    realesrgan \
-    mediapipe \
-    albumentations \
-    kornia \
-    timm \
-    addict \
-    yapf \
-    basicsr \
-    filterpy \
-    lark \
-    omegaconf \
-    rich \
-    tqdm
-
-# Focus on core functionality first - skip optional nodes for now
-# ReActor and other nodes can be added later via ComfyUI Manager
+WORKDIR /workspace/ComfyUI/models/loras
+RUN wget --timeout=60 --tries=3 -O chad_sd1.5.safetensors "https://civitai.com/api/download/models/87153"
 
 # Go back to ComfyUI root
 WORKDIR /workspace/ComfyUI
-
-# Create directories for models
-RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams models/insightface models/facerestore_models
-
-# Download required base checkpoint model
-WORKDIR /workspace/ComfyUI/models/checkpoints
-RUN wget --timeout=60 --tries=3 -O real-dream-15.safetensors "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors" || echo "Failed to download real-dream-15.safetensors"
-
-# Download required LoRA model
-WORKDIR /workspace/ComfyUI/models/loras
-RUN wget --timeout=60 --tries=3 -O chad_sd1.5.safetensors "https://civitai.com/api/download/models/87153" || echo "Failed to download chad_sd1.5.safetensors"
-
-# Download face restoration model (for FaceDetailer)
-WORKDIR /workspace/ComfyUI/models/facerestore_models
-RUN wget --timeout=60 --tries=3 -O GFPGANv1.3.pth "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth" || echo "Failed to download GFPGANv1.3.pth"
-
-# Download FaceDetailer models (create bbox subdirectory)
-WORKDIR /workspace/ComfyUI/models/ultralytics
-RUN mkdir -p bbox
-WORKDIR /workspace/ComfyUI/models/ultralytics/bbox
-RUN wget --timeout=30 --tries=3 -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Failed to download face_yolov8m.pt"
-
-WORKDIR /workspace/ComfyUI/models/sams
-RUN wget --timeout=30 --tries=3 -O sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" || echo "Failed to download sam_vit_b_01ec64.pth"
-
-# Create directories for workflows
-WORKDIR /workspace/ComfyUI
-RUN mkdir -p workflows
 
 # Expose port
 EXPOSE 8188
