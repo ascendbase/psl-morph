@@ -1,0 +1,40 @@
+# Use Python 3.11 for maximum stability
+FROM python:3.11-slim
+
+# Install only essential system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Clone ComfyUI (stable version)
+RUN git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git
+
+# Install ComfyUI requirements only
+WORKDIR /workspace/ComfyUI
+RUN pip install -r requirements.txt
+
+# Create model directories
+RUN mkdir -p models/checkpoints models/loras
+
+# Copy your local models instead of downloading
+COPY base_models/real-dream-15.safetensors models/checkpoints/
+COPY lora/chad_sd1.5.safetensors models/loras/
+
+# Go back to ComfyUI root
+WORKDIR /workspace/ComfyUI
+
+# Expose port
+EXPOSE 8188
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Start ComfyUI
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--dont-print-server"]

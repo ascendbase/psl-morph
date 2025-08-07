@@ -197,12 +197,16 @@ class RunPodClient:
                 return None, "Failed to process image"
             
             # Prepare payload for serverless endpoint
+            # Support both old and new endpoint formats
             payload = {
                 "input": {
                     "workflow": workflow,
-                    "images": {
-                        image_filename: image_base64
-                    }
+                    "images": [
+                        {
+                            "name": image_filename,
+                            "image": image_base64
+                        }
+                    ]
                 }
             }
             
