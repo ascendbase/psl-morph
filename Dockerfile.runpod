@@ -70,10 +70,26 @@ RUN git clone --depth 1 https://github.com/WASasquatch/was-node-suite-comfyui.gi
 # Go back to ComfyUI root
 WORKDIR /workspace/ComfyUI
 
-# Create directories for models (you'll need to add your models manually)
-RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams
+# Create directories for models
+RUN mkdir -p models/checkpoints models/loras models/ultralytics models/sams models/insightface models/facerestore_models
 
-# Download FaceDetailer models with better error handling
+# Download required base checkpoint model
+WORKDIR /workspace/ComfyUI/models/checkpoints
+RUN wget --timeout=60 --tries=3 -O real-dream-15.safetensors "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors" || echo "Failed to download real-dream-15.safetensors"
+
+# Download required LoRA model
+WORKDIR /workspace/ComfyUI/models/loras
+RUN wget --timeout=60 --tries=3 -O chad_sd1.5.safetensors "https://civitai.com/api/download/models/87153" || echo "Failed to download chad_sd1.5.safetensors"
+
+# Download ReActor face swap model
+WORKDIR /workspace/ComfyUI/models/insightface
+RUN wget --timeout=60 --tries=3 -O inswapper_128.onnx "https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx" || echo "Failed to download inswapper_128.onnx"
+
+# Download face restoration model
+WORKDIR /workspace/ComfyUI/models/facerestore_models
+RUN wget --timeout=60 --tries=3 -O GFPGANv1.3.pth "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth" || echo "Failed to download GFPGANv1.3.pth"
+
+# Download FaceDetailer models
 WORKDIR /workspace/ComfyUI/models/ultralytics
 RUN wget --timeout=30 --tries=3 -O face_yolov8m.pt "https://github.com/Bing-su/sd-webui-models/raw/main/detection/bbox/face_yolov8m.pt" || echo "Failed to download face_yolov8m.pt"
 
