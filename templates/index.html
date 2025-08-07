@@ -40,8 +40,57 @@
 
         .subtitle {
             color: #7f8c8d;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             font-size: 1.1em;
+        }
+
+        .gpu-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .gpu-status.ready {
+            background: #d5f4e6;
+            border: 2px solid #27ae60;
+            color: #27ae60;
+        }
+
+        .gpu-status.unavailable {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .gpu-status.checking {
+            background: #fef9e7;
+            border: 2px solid #f39c12;
+            color: #f39c12;
+        }
+
+        .gpu-status-icon {
+            font-size: 1.2em;
+            animation: pulse 2s infinite;
+        }
+
+        .gpu-status.ready .gpu-status-icon {
+            animation: none;
+        }
+
+        .gpu-status-text {
+            font-size: 0.95em;
+        }
+
+        .gpu-status-text a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: bold;
         }
 
         .upload-area {
@@ -348,6 +397,105 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        /* Mode Selection Styles */
+        .mode-section {
+            margin: 30px 0;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #6c757d;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .mode-btn:hover {
+            border-color: #27ae60;
+            color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Features Grid Styles */
+        .features-section {
+            margin: 30px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .feature-option:hover {
+            border-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.2);
+        }
+
+        .feature-option.selected {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature-name {
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .custom-info {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .custom-info-text {
+            color: #27ae60;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -366,6 +514,28 @@
                 margin-top: 15px;
                 padding: 12px;
             }
+
+            .mode-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mode-btn {
+                max-width: none;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .feature-option {
+                padding: 15px 10px;
+            }
+
+            .feature-icon {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
@@ -373,6 +543,12 @@
     <div class="container">
         <div class="logo">🔥 PSL Accurate Morph</div>
         <div class="subtitle">Transform your face with AI-powered morphing</div>
+        
+        <!-- GPU Status Indicator -->
+        <div class="gpu-status" id="gpuStatus">
+            <div class="gpu-status-icon" id="gpuStatusIcon">⚡</div>
+            <div class="gpu-status-text" id="gpuStatusText">Checking GPU status...</div>
+        </div>
         
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📸</div>
@@ -385,7 +561,21 @@
             <img id="previewImage" class="preview-image" alt="Preview">
         </div>
         
-        <div class="tier-section">
+        <!-- Transformation Mode Selection -->
+        <div class="mode-section">
+            <div class="tier-title">Choose Transformation Mode</div>
+            <div class="mode-buttons">
+                <button class="mode-btn active" id="fullFaceBtn" data-mode="full">
+                    🎭 Full Face Transform
+                </button>
+                <button class="mode-btn" id="customFeatureBtn" data-mode="custom">
+                    🎯 Custom Features
+                </button>
+            </div>
+        </div>
+
+        <!-- Full Face Transformation Section -->
+        <div class="tier-section" id="fullFaceSection">
             <div class="tier-title">Choose Your Transformation Tier</div>
             <div class="tier-slider-container">
                 <input type="range"
@@ -404,6 +594,42 @@
                 <div class="current-tier" id="currentTier">
                     <div class="current-tier-name">+1 Tier</div>
                     <div class="current-tier-description">Subtle Enhancement</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Features Section -->
+        <div class="features-section" id="customFeaturesSection" style="display: none;">
+            <div class="tier-title">Select Facial Features to Transform</div>
+            <div class="features-grid">
+                <div class="feature-option" data-feature="eyes">
+                    <div class="feature-icon">👁️</div>
+                    <div class="feature-name">Eyes</div>
+                </div>
+                <div class="feature-option" data-feature="eyebrows">
+                    <div class="feature-icon">🤨</div>
+                    <div class="feature-name">Eyebrows</div>
+                </div>
+                <div class="feature-option" data-feature="nose">
+                    <div class="feature-icon">👃</div>
+                    <div class="feature-name">Nose Shape</div>
+                </div>
+                <div class="feature-option" data-feature="lips">
+                    <div class="feature-icon">👄</div>
+                    <div class="feature-name">Lips</div>
+                </div>
+                <div class="feature-option" data-feature="jaw">
+                    <div class="feature-icon">🦴</div>
+                    <div class="feature-name">Facial Contour</div>
+                </div>
+                <div class="feature-option" data-feature="chin">
+                    <div class="feature-icon">🗿</div>
+                    <div class="feature-name">Chin</div>
+                </div>
+            </div>
+            <div class="custom-info">
+                <div class="custom-info-text">
+                    ⚡ Custom features use fixed 50% intensity for optimal results
                 </div>
             </div>
         </div>
@@ -433,6 +659,8 @@
         let selectedFile = null;
         let selectedDenoise = 0.10; // Default to 10%
         let currentPromptId = null;
+        let transformMode = 'full'; // 'full' or 'custom'
+        let selectedFeatures = []; // Array of selected features for custom mode
 
         // DOM elements
         const uploadArea = document.getElementById('uploadArea');
@@ -587,7 +815,9 @@
                     },
                     body: JSON.stringify({
                         filename: uploadResult.filename,
-                        denoise: selectedDenoise
+                        denoise: selectedDenoise,
+                        transform_mode: transformMode,
+                        selected_features: selectedFeatures
                     })
                 });
                 
@@ -606,6 +836,13 @@
                 const errorMsg = error.message;
                 if (errorMsg.includes('No credits available')) {
                     showStatus(`${errorMsg} <a href="/payments/buy-credits" style="color: #27ae60; text-decoration: underline;">Buy Credits</a>`, 'error');
+                } else if (errorMsg.includes('GPU is overloaded')) {
+                    showStatus(`${errorMsg}`, 'error');
+                    // Start countdown timer for cooldown
+                    const match = errorMsg.match(/(\d+) seconds/);
+                    if (match) {
+                        startCooldownTimer(parseInt(match[1]));
+                    }
                 } else {
                     showStatus(`Error: ${errorMsg}`, 'error');
                 }
@@ -718,11 +955,135 @@
             fileInput.value = '';
         });
 
-        // Health check on load - disabled to prevent user confusion
-        // The app works fine even if initial connection check fails
+        // GPU Status checking
+        const gpuStatus = document.getElementById('gpuStatus');
+        const gpuStatusIcon = document.getElementById('gpuStatusIcon');
+        const gpuStatusText = document.getElementById('gpuStatusText');
+
+        async function checkGpuStatus() {
+            try {
+                const response = await fetch('/gpu-status');
+                const result = await response.json();
+                
+                if (result.available) {
+                    gpuStatus.className = 'gpu-status ready';
+                    gpuStatusIcon.textContent = '✅';
+                    gpuStatusText.textContent = result.message;
+                } else {
+                    gpuStatus.className = 'gpu-status unavailable';
+                    gpuStatusIcon.textContent = '❌';
+                    gpuStatusText.innerHTML = result.message + ' <a href="/payments/buy-credits">Buy Credits</a>';
+                }
+            } catch (error) {
+                gpuStatus.className = 'gpu-status unavailable';
+                gpuStatusIcon.textContent = '⚠️';
+                gpuStatusText.textContent = 'Unable to check GPU status';
+            }
+        }
+
+        // Mode switching functionality
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const fullFaceSection = document.getElementById('fullFaceSection');
+        const customFeaturesSection = document.getElementById('customFeaturesSection');
+        const featureOptions = document.querySelectorAll('.feature-option');
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const mode = this.dataset.mode;
+                
+                // Update active button
+                modeButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update transform mode
+                transformMode = mode;
+                
+                // Show/hide sections
+                if (mode === 'full') {
+                    fullFaceSection.style.display = 'block';
+                    customFeaturesSection.style.display = 'none';
+                } else {
+                    fullFaceSection.style.display = 'none';
+                    customFeaturesSection.style.display = 'block';
+                }
+                
+                // Update process button state
+                updateProcessButtonState();
+            });
+        });
+
+        // Feature selection functionality
+        featureOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const feature = this.dataset.feature;
+                
+                if (this.classList.contains('selected')) {
+                    // Deselect feature
+                    this.classList.remove('selected');
+                    selectedFeatures = selectedFeatures.filter(f => f !== feature);
+                } else {
+                    // Select feature
+                    this.classList.add('selected');
+                    selectedFeatures.push(feature);
+                }
+                
+                // Update process button state
+                updateProcessButtonState();
+            });
+        });
+
+        function updateProcessButtonState() {
+            if (!selectedFile) {
+                processBtn.disabled = true;
+                return;
+            }
+            
+            if (transformMode === 'full') {
+                processBtn.disabled = false;
+            } else {
+                // Custom mode - need at least one feature selected
+                processBtn.disabled = selectedFeatures.length === 0;
+            }
+        }
+
+        // Cooldown timer functionality
+        let cooldownTimer = null;
+
+        function startCooldownTimer(seconds) {
+            if (cooldownTimer) {
+                clearInterval(cooldownTimer);
+            }
+            
+            let remaining = seconds;
+            processBtn.disabled = true;
+            
+            const updateButton = () => {
+                if (remaining <= 0) {
+                    processBtn.textContent = '🚀 Start Transformation';
+                    processBtn.disabled = !selectedFile || (transformMode === 'custom' && selectedFeatures.length === 0);
+                    clearInterval(cooldownTimer);
+                    cooldownTimer = null;
+                    hideStatus();
+                } else {
+                    processBtn.textContent = `⏳ Wait ${remaining}s`;
+                    showStatus(`GPU cooldown: ${remaining} seconds remaining to prevent overload`, 'error');
+                    remaining--;
+                }
+            };
+            
+            updateButton(); // Initial call
+            cooldownTimer = setInterval(updateButton, 1000);
+        }
+
+        // Check GPU status on load and every 30 seconds
         window.addEventListener('load', async function() {
-            // Health check removed - app functionality works regardless
             console.log('Face Morphing App loaded successfully');
+            
+            // Initial GPU status check
+            await checkGpuStatus();
+            
+            // Check GPU status every 30 seconds
+            setInterval(checkGpuStatus, 30000);
         });
     </script>
 </body>

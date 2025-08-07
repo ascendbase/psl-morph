@@ -23,7 +23,7 @@
   },
   "3": {
     "inputs": {
-      "text": "chad, male model, face portrait",
+      "text": "chad, male model, beautiful eyes, detailed eyes",
       "clip": ["2", 1]
     },
     "class_type": "CLIPTextEncode",
@@ -33,7 +33,7 @@
   },
   "4": {
     "inputs": {
-      "text": "(worst quality, low quality:1.4), (bad anatomy), text, error, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, deformed face",
+      "text": "(worst quality, low quality:1.4), (bad anatomy), text, error, cropped, jpeg artifacts, signature, watermark, username, blurry, deformed eyes, closed eyes",
       "clip": ["2", 1]
     },
     "class_type": "CLIPTextEncode",
@@ -84,45 +84,45 @@
       "detailer_hook": null,
       "scheduler_func_opt": null,
       "wildcard": "",
-      "guide_size": 512,
+      "guide_size": 256,
       "guide_size_for": "bbox",
-      "max_size": 1024,
+      "max_size": 512,
       "seed": 156680208700286,
       "steps": 20,
       "cfg": 8.0,
       "sampler_name": "euler",
       "scheduler": "normal",
       "denoise": 0.50,
-      "feather": 5,
+      "feather": 3,
       "noise_mask": true,
       "force_inpaint": true,
       "bbox_threshold": 0.50,
-      "bbox_dilation": 25,
-      "bbox_crop_factor": 4.5,
+      "bbox_dilation": 5,
+      "bbox_crop_factor": 1.8,
       "sam_detection_hint": "center-1",
       "sam_dilation": 0,
-      "sam_threshold": 0.93,
-      "sam_bbox_expansion": 15,
-      "sam_mask_hint_threshold": 0.70,
+      "sam_threshold": 0.95,
+      "sam_bbox_expansion": 5,
+      "sam_mask_hint_threshold": 0.80,
       "sam_mask_hint_use_negative": "False",
-      "drop_size": 10,
+      "drop_size": 5,
       "cycle": 1,
       "inpaint_model": false,
-      "noise_mask_feather": 20
+      "noise_mask_feather": 10
     },
     "class_type": "FaceDetailer",
     "_meta": {
-      "title": "Face Detailer"
+      "title": "Eyes Detailer"
     }
   },
   "9": {
     "inputs": {
-      "filename_prefix": "ComfyUI",
+      "filename_prefix": "eyes_transform",
       "images": ["8", 0]
     },
     "class_type": "SaveImage",
     "_meta": {
-      "title": "Save Result"
+      "title": "Save Eyes Result"
     }
   }
 }
