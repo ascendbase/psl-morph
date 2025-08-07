@@ -544,11 +544,27 @@ def process_image():
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             
             try:
-                # Start RunPod generation
+                # Map denoise value to preset and intensity
+                if denoise_value == 0.10:
+                    preset_key = 'HTN'
+                    denoise_intensity = 4
+                elif denoise_value == 0.15:
+                    preset_key = 'Chadlite'
+                    denoise_intensity = 6
+                elif denoise_value == 0.25:
+                    preset_key = 'Chad'
+                    denoise_intensity = 8
+                else:
+                    # Default mapping for custom values
+                    preset_key = 'HTN'
+                    denoise_intensity = int((denoise_value - 0.10) / 0.15 * 10) + 1
+                    denoise_intensity = max(1, min(10, denoise_intensity))
+                
+                # Start RunPod generation with new parameters
                 job_result = gpu_client.generate_image(
                     image_path=file_path,
-                    denoise_strength=denoise_value,
-                    preset_name=tier_name
+                    preset_key=preset_key,
+                    denoise_intensity=denoise_intensity
                 )
                 
                 # Handle tuple return (job_id, error)
