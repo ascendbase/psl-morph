@@ -5,6 +5,9 @@ Modify these settings to customize your application
 
 import os
 
+# Development vs Production
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+
 # Flask Configuration
 SECRET_KEY = 'your-secret-key-change-in-production'
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
@@ -14,6 +17,24 @@ DEBUG = True
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
 WORKFLOW_FOLDER = 'comfyui_workflows'
+
+# Facial Evaluation Folder - Use Railway volume path in production
+# Check multiple Railway indicators for better detection
+is_railway = any([
+    os.getenv('RAILWAY_ENVIRONMENT'),
+    os.getenv('RAILWAY_PROJECT_ID'),
+    os.getenv('RAILWAY_SERVICE_ID'),
+    os.getenv('DATABASE_URL', '').startswith('postgresql://'),
+    os.path.exists('/app')  # Railway typically uses /app as working directory
+])
+
+if is_railway and ENVIRONMENT == 'production':
+    FACIAL_EVALUATION_FOLDER = '/app/facial_evaluations'  # Railway volume mount path
+elif is_railway:
+    # We're on Railway but not in production mode - still use volume path
+    FACIAL_EVALUATION_FOLDER = '/app/facial_evaluations'  # Railway volume mount path
+else:
+    FACIAL_EVALUATION_FOLDER = 'facial_evaluations'  # Local development path
 
 # ComfyUI Configuration
 COMFYUI_URL = os.getenv('COMFYUI_URL', 'http://127.0.0.1:8188')
@@ -30,7 +51,7 @@ TIER_SYSTEM = {
     'max_denoise': 0.25,  # 25% maximum
     'milestones': {
         0.10: '+1 Tier',
-        0.15: '+2 Tier',
+        0.17: '+2 Tier',
         0.25: 'Chad'
     }
 }
@@ -44,7 +65,7 @@ PRESETS = {
         'color': 'green'
     },
     'tier2': {
-        'denoise': 0.15,
+        'denoise': 0.17,
         'name': '+2 Tier',
         'description': 'Moderate Transform',
         'color': 'blue'
@@ -115,22 +136,17 @@ HOST = '0.0.0.0'  # Change to '127.0.0.1' for localhost only
 PORT = 5000
 THREADED = True
 
-# Development vs Production
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
-
 # Database Configuration
-if os.getenv('RAILWAY_ENVIRONMENT'):
-    # Production on Railway - use PostgreSQL
-    DATABASE_URL = os.getenv('DATABASE_URL')
-    if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+# Check if we're on Railway (Railway sets DATABASE_URL automatically)
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    # We're on Railway or another cloud platform with PostgreSQL
+    if DATABASE_URL.startswith('postgres://'):
         # Fix for newer SQLAlchemy versions
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-    elif not DATABASE_URL:
-        # Fallback to SQLite if no DATABASE_URL is set
-        DATABASE_URL = 'sqlite:///instance/app.db'
 else:
     # Local development - use SQLite
-    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///instance/app.db')
+    DATABASE_URL = 'sqlite:///instance/app.db'
 
 # Authentication Configuration
 LOGIN_DISABLED = os.getenv('LOGIN_DISABLED', 'False').lower() == 'true'  # For development
@@ -145,10 +161,10 @@ PAYPAL_CLIENT_SECRET = os.getenv('PAYPAL_CLIENT_SECRET', '')
 
 # Credit System Configuration
 CREDIT_PACKAGES = {
-    '20': {'credits': 20, 'price': 5.00, 'bonus': 0},
-    '50': {'credits': 50, 'price': 10.00, 'bonus': 5},  # 10% bonus
-    '100': {'credits': 100, 'price': 18.00, 'bonus': 15},  # 15% bonus
-    '250': {'credits': 250, 'price': 40.00, 'bonus': 50}  # 20% bonus
+    '20': {'credits': 20, 'price': 10.00, 'bonus': 0},
+    '50': {'credits': 50, 'price': 20.00, 'bonus': 5},  # 10% bonus
+    '100': {'credits': 100, 'price': 36.00, 'bonus': 15},  # 15% bonus
+    '250': {'credits': 250, 'price': 80.00, 'bonus': 50}  # 20% bonus
 }
 
 # Rate Limiting
@@ -185,12 +201,15 @@ MODAL_APP_NAME = os.getenv('MODAL_APP_NAME', 'face-morph-simple')
 USE_REPLICATE = os.getenv('USE_REPLICATE', 'false').lower() == 'true'
 REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN', '')
 
+# OpenRouter Configuration (for AI facial analysis)
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+
 # Cloud GPU mode selection - DISABLED FOR LOCAL COMFYUI
 USE_CLOUD_GPU = os.getenv('USE_CLOUD_GPU', 'false').lower() == 'true'
 
 # Local ComfyUI Configuration (for Railway deployment calling local GPU)
 USE_LOCAL_COMFYUI = os.getenv('USE_LOCAL_COMFYUI', 'true').lower() == 'true'  # ENABLED - Use local ComfyUI
-LOCAL_COMFYUI_URL = os.getenv('LOCAL_COMFYUI_URL', 'http://127.0.0.1:8188')  # Will be public URL for Railway
+LOCAL_COMFYUI_URL = os.getenv('LOCAL_COMFYUI_URL', 'https://statute-pas-org-southeast.trycloudflare.com')  # Cloudflare tunnel URL
 LOCAL_COMFYUI_WORKFLOW = os.getenv('LOCAL_COMFYUI_WORKFLOW', 'comfyui_workflows/workflow_facedetailer.json')
 
 # RunPod Settings

@@ -18,7 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p uploads outputs
+RUN mkdir -p uploads outputs facial_evaluations templates/admin templates/facial_evaluation
+
+# Ensure all template directories exist
+RUN mkdir -p templates/admin templates/facial_evaluation templates/auth templates/payments
 
 # Set environment variables
 ENV ENVIRONMENT=production

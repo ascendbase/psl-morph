@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Facial Evaluations</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: #6d849a;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .request-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .request-section h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .request-section p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .upload-area {
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1rem 0;
+            transition: border-color 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #3498db;
+        }
+        
+        .upload-area.dragover {
+            border-color: #2ecc71;
+            background-color: #f8f9fa;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .btn-outline:hover {
+            background: #ecf0f1;
+            border-color: #95a5a6;
+        }
+        
+        .evaluations-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .evaluations-section h2 {
+            padding: 1.5rem;
+            margin: 0;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            color: #2c3e50;
+        }
+        
+        .evaluation-list {
+            padding: 0;
+        }
+        
+        .evaluation-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .evaluation-item:last-child {
+            border-bottom: none;
+        }
+        
+        .evaluation-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .evaluation-info {
+            flex: 1;
+        }
+        
+        .evaluation-date {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-response {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .evaluation-response h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-response p {
+            color: #555;
+            line-height: 1.6;
+            margin: 0.5rem 0;
+        }
+        
+        .evaluation-response .markdown-content {
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .evaluation-response .markdown-content h1,
+        .evaluation-response .markdown-content h2,
+        .evaluation-response .markdown-content h3,
+        .evaluation-response .markdown-content h4,
+        .evaluation-response .markdown-content h5,
+        .evaluation-response .markdown-content h6 {
+            color: #2c3e50;
+            margin: 1rem 0 0.5rem 0;
+        }
+        
+        .evaluation-response .markdown-content p {
+            margin: 0.5rem 0;
+        }
+        
+        .evaluation-response .markdown-content ul,
+        .evaluation-response .markdown-content ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .evaluation-response .markdown-content li {
+            margin: 0.25rem 0;
+        }
+        
+        .evaluation-response .markdown-content strong {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .evaluation-response .markdown-content em {
+            font-style: italic;
+        }
+        
+        .evaluation-response .markdown-content blockquote {
+            border-left: 3px solid #3498db;
+            padding-left: 1rem;
+            margin: 0.5rem 0;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .evaluation-response .markdown-content code {
+            background: #e8f4fd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .evaluation-response .markdown-content pre {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        
+        .evaluation-response .markdown-content hr {
+            border: none;
+            border-top: 1px solid #bdc3c7;
+            margin: 1rem 0;
+        }
+        
+        .evaluation-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+        
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .status-cancelled {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .credit-info {
+            background: #e8f4fd;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .credit-info strong {
+            color: #2980b9;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .alert-error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .evaluation-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .evaluation-status {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🔥 PSL Accurate Face Morph</div>
+            <nav class="user-menu">
+                <span>{{ current_user.email }}</span>
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin_dashboard') }}" style="background: rgba(255,255,255,0.2);">🛠️ Admin</a>
+                {% endif %}
+                <a href="{{ url_for('auth.profile') }}">Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>✨ Professional Facial Analysis & Rating</h1>
+            <p>Get expert insights on your facial features and personalized improvement recommendations</p>
+        </div>
+        
+        <div class="evaluations-section">
+            <h2>📋 Your Facial Evaluation History</h2>
+            {% if evaluations %}
+                <div class="evaluation-list">
+                    {% for evaluation in evaluations %}
+                        <div class="evaluation-item">
+                            <div class="evaluation-info">
+                                <div class="evaluation-date">{{ evaluation.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                                <div class="evaluation-details">
+                                    {% if evaluation.generation_id %}
+                                        📊 Analysis of morphed result
+                                    {% else %}
+                                        📸 Standalone photo analysis
+                                    {% endif %}
+                                    • Cost: {{ evaluation.credits_used }} credits
+                                </div>
+                                
+                                {% if evaluation.status == 'Completed' and evaluation.admin_response %}
+                                    <div class="evaluation-response">
+                                        <h4>🎯 Expert Analysis & Rating</h4>
+                                        <div class="markdown-content">{{ evaluation.admin_response|markdown|safe }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="evaluation-status status-{{ 'pending' if evaluation.status == 'Pending' else 'completed' if evaluation.status == 'Completed' else 'cancelled' }}">
+                                {% if evaluation.status == 'Pending' %}
+                                    ⏳ Pending
+                                {% elif evaluation.status == 'Completed' %}
+                                    ✅ Completed
+                                {% elif evaluation.status == 'Cancelled' %}
+                                    ❌ Cancelled
+                                {% else %}
+                                    {{ evaluation.status }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No facial evaluations yet</h3>
+                    <p>Upload your first photo to get professional facial analysis and personalized rating!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="request-section" style="margin-top: 2rem;">
+            <h2>🎯 Request Your Personal Facial Evaluation</h2>
+            <p>Our expert will analyze your facial features, provide detailed feedback on your strengths, areas for improvement, and give you a personalized rating with actionable advice.</p>
+            
+            <div class="credit-info">
+                <strong>💳 Cost: 20 Credits</strong> | Your Balance: <strong>{{ current_user.credits }} Credits</strong>
+                {% if current_user.credits < 20 %}
+                <br><span style="color: #e74c3c;">⚠️ Insufficient credits. Please purchase more credits to request facial evaluation.</span>
+                {% endif %}
+            </div>
+            
+            <div class="upload-section">
+                <h3>Upload Your Photos (1-2 images)</h3>
+                <p style="margin-bottom: 1rem; color: #666;">Upload 1-2 photos for comprehensive analysis</p>
+                
+                <div class="upload-area" id="uploadArea1">
+                    <div class="upload-icon">📸</div>
+                    <h4>First Photo (Required)</h4>
+                    <p>Drag & drop your photo here or click to select</p>
+                    <p style="font-size: 0.9rem; color: #666;">Supported formats: PNG, JPG, JPEG, WebP</p>
+                    <input type="file" id="fileInput1" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="upload-area" id="uploadArea2" style="margin-top: 1rem; opacity: 0.7;">
+                    <div class="upload-icon">📸</div>
+                    <h4>Second Photo (Optional)</h4>
+                    <p>Upload a second angle or different photo</p>
+                    <p style="font-size: 0.9rem; color: #666;">Supported formats: PNG, JPG, JPEG, WebP</p>
+                    <input type="file" id="fileInput2" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Submitting your facial evaluation request...</p>
+            </div>
+            
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+            
+            {% if current_user.credits >= 20 %}
+            <button class="btn btn-primary" id="submitBtn" disabled>
+                🚀 Submit for Professional Analysis (20 Credits)
+            </button>
+            {% else %}
+            <a href="{{ url_for('payments.buy_credits') }}" class="btn btn-success">
+                💳 Buy Credits to Get Analysis
+            </a>
+            {% endif %}
+            
+            <div style="margin-top: 1rem;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">← Back to Dashboard</a>
+            </div>
+        </div>
+        
+        </div>
+    </div>
+
+    <script>
+        const uploadArea1 = document.getElementById('uploadArea1');
+        const uploadArea2 = document.getElementById('uploadArea2');
+        const fileInput1 = document.getElementById('fileInput1');
+        const fileInput2 = document.getElementById('fileInput2');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        
+        let selectedFile1 = null;
+        let selectedFile2 = null;
+        
+        // Upload area interactions for first photo
+        uploadArea1.addEventListener('click', () => fileInput1.click());
+        uploadArea1.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea1.classList.add('dragover');
+        });
+        uploadArea1.addEventListener('dragleave', () => {
+            uploadArea1.classList.remove('dragover');
+        });
+        uploadArea1.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea1.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0], 1);
+            }
+        });
+        
+        fileInput1.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0], 1);
+            }
+        });
+        
+        // Upload area interactions for second photo
+        uploadArea2.addEventListener('click', () => fileInput2.click());
+        uploadArea2.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea2.classList.add('dragover');
+        });
+        uploadArea2.addEventListener('dragleave', () => {
+            uploadArea2.classList.remove('dragover');
+        });
+        uploadArea2.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea2.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0], 2);
+            }
+        });
+        
+        fileInput2.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0], 2);
+            }
+        });
+        
+        function handleFileSelect(file, photoNumber) {
+            // Validate file type
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                showError('Please select a valid image file (PNG, JPG, JPEG, or WebP)');
+                return;
+            }
+            
+            // Validate file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB');
+                return;
+            }
+            
+            if (photoNumber === 1) {
+                selectedFile1 = file;
+                uploadArea1.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <h4>First Photo Selected: ${file.name}</h4>
+                    <p>Ready for professional analysis</p>
+                    <p style="font-size: 0.9rem; color: #666;">Click to select a different photo</p>
+                `;
+                uploadArea2.style.opacity = '1'; // Enable second upload area
+            } else {
+                selectedFile2 = file;
+                uploadArea2.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <h4>Second Photo Selected: ${file.name}</h4>
+                    <p>Additional angle for comprehensive analysis</p>
+                    <p style="font-size: 0.9rem; color: #666;">Click to select a different photo</p>
+                `;
+            }
+            
+            // Enable submit button if at least first photo is selected
+            if (submitBtn && selectedFile1) {
+                submitBtn.disabled = false;
+            }
+            
+            hideAlerts();
+        }
+        
+        // Submit facial evaluation request
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async () => {
+                if (!selectedFile1) {
+                    showError('Please select at least the first photo');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file1', selectedFile1);
+                if (selectedFile2) {
+                    formData.append('file2', selectedFile2);
+                }
+                
+                try {
+                    loading.style.display = 'block';
+                    submitBtn.disabled = true;
+                    hideAlerts();
+                    
+                    const response = await fetch('/request-facial-evaluation-standalone', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showSuccess(result.message);
+                        // Reset form
+                        selectedFile1 = null;
+                        selectedFile2 = null;
+                        resetUploadAreas();
+                        submitBtn.disabled = true;
+                        
+                        // Refresh page after 2 seconds to show new evaluation
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        if (result.need_credits) {
+                            showError(result.error + ' <a href="' + result.buy_credits_url + '" style="color: #e74c3c; text-decoration: underline;">Buy credits now</a>');
+                        } else {
+                            showError(result.error);
+                        }
+                        submitBtn.disabled = false;
+                    }
+                } catch (error) {
+                    showError('Network error. Please try again.');
+                    submitBtn.disabled = false;
+                } finally {
+                    loading.style.display = 'none';
+                }
+            });
+        }
+        
+        function resetUploadAreas() {
+            uploadArea1.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <h4>First Photo (Required)</h4>
+                <p>Drag & drop your photo here or click to select</p>
+                <p style="font-size: 0.9rem; color: #666;">Supported formats: PNG, JPG, JPEG, WebP</p>
+            `;
+            uploadArea2.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <h4>Second Photo (Optional)</h4>
+                <p>Upload a second angle or different photo</p>
+                <p style="font-size: 0.9rem; color: #666;">Supported formats: PNG, JPG, JPEG, WebP</p>
+            `;
+            uploadArea2.style.opacity = '0.7';
+        }
+        
+        function showSuccess(message) {
+            successAlert.innerHTML = message;
+            successAlert.style.display = 'block';
+            errorAlert.style.display = 'none';
+        }
+        
+        function showError(message) {
+            errorAlert.innerHTML = message;
+            errorAlert.style.display = 'block';
+            successAlert.style.display = 'none';
+        }
+        
+        function hideAlerts() {
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -90,3 +90,20 @@ class AdminCreditForm(FlaskForm):
     reason = StringField('Reason', validators=[
         Length(max=200)
     ])
+
+class FacialEvaluationRequestForm(FlaskForm):
+    """Form for requesting facial evaluation"""
+    pass  # No fields needed - just for CSRF protection
+
+class AdminFacialEvaluationResponseForm(FlaskForm):
+    """Admin form for responding to facial evaluation requests"""
+    response = StringField('Facial Analysis & Personal Rating', 
+                          widget=TextArea(), 
+                          validators=[
+                              DataRequired(message='Please provide your professional facial analysis'),
+                              Length(min=50, max=2000, message='Response must be between 50 and 2000 characters')
+                          ],
+                          render_kw={
+                              'placeholder': 'Provide detailed facial analysis including strengths, areas for improvement, and personal rating...',
+                              'rows': 8
+                          })

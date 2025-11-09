@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy Credits - Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
     <style>
         * {
             margin: 0;
@@ -397,10 +400,10 @@
         function getPackagePrice(packageId) {
             // Updated to work with new credit packages
             const priceMap = {
-                '20': 5.00,
-                '50': 10.00,
-                '100': 18.00,
-                '250': 40.00
+                '20': 10.00,
+                '50': 20.00,
+                '100': 36.00,
+                '250': 80.00
             };
             return priceMap[packageId] ? priceMap[packageId].toFixed(2) : '0.00';
         }
@@ -417,6 +420,17 @@
                 });
             });
         });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>

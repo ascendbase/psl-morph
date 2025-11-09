@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAD 2.0 - Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .chad-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        .gpu-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .gpu-status.ready {
+            background: #d5f4e6;
+            border: 2px solid #27ae60;
+            color: #27ae60;
+        }
+
+        .gpu-status.unavailable {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .gpu-status.checking {
+            background: #fef9e7;
+            border: 2px solid #f39c12;
+            color: #f39c12;
+        }
+
+        .gpu-status-icon {
+            font-size: 1.2em;
+            animation: pulse 2s infinite;
+        }
+
+        .gpu-status.ready .gpu-status-icon {
+            animation: none;
+        }
+
+        .upload-area {
+            border: 3px dashed #e1e8ed;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: #f0f0ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #95a5a6;
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .tier-section {
+            margin: 30px 0;
+        }
+
+        .tier-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .tier-slider-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px 20px;
+            margin: 20px 0;
+        }
+
+        .tier-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .tier-slider:hover {
+            opacity: 1;
+        }
+
+        .tier-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tier-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .tier-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tier-slider:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .tier-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 12px;
+        }
+
+        .tier-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .tier-label.milestone {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .current-tier {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .current-tier-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .process-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            min-width: 200px;
+        }
+        
+        .process-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .process-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .status-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .status-area.show {
+            display: block;
+        }
+
+        .status-area.processing {
+            background: #fef9e7;
+            border: 1px solid #f39c12;
+            color: #f39c12;
+        }
+        
+        .status-area.success {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            color: #27ae60;
+        }
+        
+        .status-area.error {
+            background: #fadbd8;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        .warning-text {
+            font-weight: 600;
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .reset-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">⚡ CHAD 2.0</div>
+        <div class="subtitle">Ultimate face transformation with enhanced model</div>
+        
+        <!-- Navigation Links -->
+        <div style="margin: 20px 0; text-align: center;">
+            <a href="/app" style="background: #3498db; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600; margin: 0 5px; display: inline-block;">
+                🔙 Regular App
+            </a>
+            <a href="/dashboard" style="background: #9b59b6; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600; margin: 0 5px; display: inline-block;">
+                🏠 Dashboard
+            </a>
+        </div>
+        
+        <!-- GPU Status Indicator -->
+        <div class="gpu-status" id="gpuStatus">
+            <div class="gpu-status-icon" id="gpuStatusIcon">⚡</div>
+            <div class="gpu-status-text" id="gpuStatusText">Checking GPU status...</div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Drop your image here or click to browse</div>
+            <div class="upload-subtext">Supports PNG, JPG, JPEG, WebP (max 16MB)</div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+        
+        <div id="previewArea" style="display: none;">
+            <img id="previewImage" class="preview-image" alt="Preview">
+        </div>
+        
+        <!-- Full Face Transformation Section (CHAD 2.0 only shows this) -->
+        <div class="tier-section" id="fullFaceSection" style="display: none;">
+            <div class="tier-title">Choose Your Transformation Intensity</div>
+            <div class="tier-slider-container">
+                <input type="range"
+                       id="tierSlider"
+                       class="tier-slider"
+                       min="15"
+                       max="35"
+                       value="15"
+                       step="1"
+                       disabled>
+                <div class="tier-labels">
+                    <div class="tier-label milestone">+1 Tier</div>
+                    <div class="tier-label milestone">+2 Tier</div>
+                    <div class="tier-label milestone">Chad</div>
+                </div>
+                <div class="current-tier" id="currentTier">
+                    <div class="current-tier-name">+1 Tier</div>
+                    <div class="current-tier-description">Subtle Enhancement</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="process-btn" id="processBtn" disabled>
+            🚀 Start CHAD 2.0 Transformation
+        </button>
+        
+        <div class="status-area" id="statusArea">
+            <div id="statusMessage">Processing your image...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="result-area" id="resultArea">
+            <h3>🎉 CHAD 2.0 Transformation Complete!</h3>
+            <img id="resultImage" class="result-image" alt="Result">
+            <div>
+                <a href="#" class="download-btn" id="downloadBtn">📥 Download Result</a>
+                <button class="reset-btn" id="resetBtn">🔄 Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let selectedDenoise = 0.15;
+        let currentPromptId = null;
+        let currentGenerationId = null;
+
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewImage = document.getElementById('previewImage');
+        const fullFaceSection = document.getElementById('fullFaceSection');
+        const tierSlider = document.getElementById('tierSlider');
+        const processBtn = document.getElementById('processBtn');
+        const statusArea = document.getElementById('statusArea');
+        const statusMessage = document.getElementById('statusMessage');
+        const progressFill = document.getElementById('progressFill');
+        const resultArea = document.getElementById('resultArea');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Tier mapping for CHAD 2.0 (higher denoise values)
+        const tierMapping = {
+            15: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            16: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            17: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            18: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            19: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            20: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            21: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            22: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            23: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            24: { name: '+1 Tier', description: 'Subtle Enhancement' },
+            25: { name: '+2 Tier', description: 'Moderate Transform' },
+            26: { name: '+2 Tier', description: 'Moderate Transform' },
+            27: { name: '+2 Tier', description: 'Moderate Transform' },
+            28: { name: '+2 Tier', description: 'Moderate Transform' },
+            29: { name: '+2 Tier', description: 'Moderate Transform' },
+            30: { name: '+2 Tier', description: 'Moderate Transform' },
+            31: { name: 'Chad', description: 'Maximum Power' },
+            32: { name: 'Chad', description: 'Maximum Power' },
+            33: { name: 'Chad', description: 'Maximum Power' },
+            34: { name: 'Chad', description: 'Maximum Power' },
+            35: { name: 'Chad', description: 'Maximum Power' }
+        };
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (PNG, JPG, JPEG, WebP)');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                alert('File size must be less than 16MB');
+                return;
+            }
+
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewArea.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            fullFaceSection.style.display = 'block';
+            tierSlider.disabled = false;
+            processBtn.disabled = false;
+
+            uploadArea.innerHTML = `
+                <div class="upload-icon">✅</div>
+                <div class="upload-text">Image uploaded successfully!</div>
+                <div class="upload-subtext">Click to change image</div>
+            `;
+        }
+
+        // Tier slider handling
+        tierSlider.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            selectedDenoise = value / 100;
+            
+            const tier = tierMapping[value];
+            if (tier) {
+                document.querySelector('.current-tier-name').textContent = tier.name;
+                document.querySelector('.current-tier-description').textContent = tier.description;
+            }
+        });
+
+        // Process button
+        processBtn.addEventListener('click', async function() {
+            if (!selectedFile || !selectedDenoise) return;
+            
+            this.disabled = true;
+            showStatus('Uploading image...', 'processing');
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('denoise', selectedDenoise.toString());
+                formData.append('chad_2_0_mode', 'true'); // Flag for CHAD 2.0
+                
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const uploadResult = await uploadResponse.json();
+                
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.error);
+                }
+                
+                showStatus('Starting CHAD 2.0 transformation...', 'processing');
+                
+                const processResponse = await fetch('/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: uploadResult.filename,
+                        denoise: selectedDenoise,
+                        transform_mode: 'chad_2_0' // CHAD 2.0 mode
+                    })
+                });
+                
+                const processResult = await processResponse.json();
+                
+                if (!processResult.success) {
+                    throw new Error(processResult.error);
+                }
+                
+                currentPromptId = processResult.prompt_id;
+                currentGenerationId = processResult.generation_id;
+                
+                pollStatus();
+                
+            } catch (error) {
+                const errorMsg = error.message;
+                if (errorMsg.includes('No credits available')) {
+                    showStatus(`${errorMsg} <a href="/payments/buy-credits" style="color: #667eea; text-decoration: underline;">Buy Credits</a>`, 'error');
+                } else {
+                    showStatus(`Error: ${errorMsg}`, 'error');
+                }
+                processBtn.disabled = false;
+            }
+        });
+
+        async function pollStatus() {
+            if (!currentPromptId) return;
+            
+            try {
+                const response = await fetch(`/status/${currentPromptId}`);
+                const result = await response.json();
+                
+                if (result.complete) {
+                    showStatus('CHAD 2.0 transformation complete!', 'success');
+                    
+                    currentGenerationId = result.generation_id;
+                    
+                    const resultResponse = await fetch(`/result/${currentPromptId}`);
+                    
+                    if (resultResponse.ok) {
+                        const blob = await resultResponse.blob();
+                        const imageUrl = URL.createObjectURL(blob);
+                        
+                        const timestamp = Date.now();
+                        const tierName = tierMapping[Math.round(selectedDenoise * 100)]?.name || 'chad_2_0';
+                        const filename = `chad_2_0_${tierName.replace(/\s+/g, '_')}_${timestamp}.png`;
+                        
+                        if (resultImage.previousSrc) {
+                            URL.revokeObjectURL(resultImage.previousSrc);
+                        }
+                        
+                        resultImage.src = imageUrl;
+                        downloadBtn.href = imageUrl;
+                        downloadBtn.download = filename;
+                        
+                        resultImage.previousSrc = imageUrl;
+                        
+                        hideStatus();
+                        resultArea.classList.add('show');
+                        processBtn.disabled = false;
+                    } else {
+                        throw new Error('Failed to retrieve result');
+                    }
+                } else {
+                    showStatus(result.message || 'Processing...', 'processing');
+                    setTimeout(pollStatus, 2000);
+                }
+                
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                processBtn.disabled = false;
+            }
+        }
+
+        function showStatus(message, type) {
+            if (type === 'processing') {
+                statusMessage.innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <div>${message}</div>
+                    <div class="warning-text">⚠️ Don't close this page!</div>
+                `;
+                progressFill.style.width = '100%';
+            } else {
+                statusMessage.innerHTML = message;
+            }
+            statusArea.className = `status-area show ${type}`;
+        }
+
+        function hideStatus() {
+            statusArea.classList.remove('show');
+        }
+
+        // Reset button
+        resetBtn.addEventListener('click', function() {
+            selectedFile = null;
+            selectedDenoise = 0.15;
+            currentPromptId = null;
+            
+            uploadArea.innerHTML = `
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Drop your image here or click to browse</div>
+                <div class="upload-subtext">Supports PNG, JPG, JPEG, WebP (max 16MB)</div>
+            `;
+            
+            previewArea.style.display = 'none';
+            fullFaceSection.style.display = 'none';
+            
+            tierSlider.value = 15;
+            tierSlider.disabled = true;
+            document.querySelector('.current-tier-name').textContent = '+1 Tier';
+            document.querySelector('.current-tier-description').textContent = 'Subtle Enhancement';
+            
+            processBtn.disabled = true;
+            hideStatus();
+            resultArea.classList.remove('show');
+            fileInput.value = '';
+        });
+
+        // GPU Status checking
+        const gpuStatus = document.getElementById('gpuStatus');
+        const gpuStatusIcon = document.getElementById('gpuStatusIcon');
+        const gpuStatusText = document.getElementById('gpuStatusText');
+
+        async function checkGpuStatus() {
+            try {
+                const response = await fetch('/gpu-status');
+                const result = await response.json();
+                
+                if (result.available) {
+                    gpuStatus.className = 'gpu-status ready';
+                    gpuStatusIcon.textContent = '✅';
+                    gpuStatusText.textContent = result.message;
+                } else {
+                    gpuStatus.className = 'gpu-status unavailable';
+                    gpuStatusIcon.textContent = '❌';
+                    gpuStatusText.innerHTML = result.message + ' <a href="/payments/buy-credits">Buy Credits</a>';
+                }
+            } catch (error) {
+                gpuStatus.className = 'gpu-status unavailable';
+                gpuStatusIcon.textContent = '⚠️';
+                gpuStatusText.textContent = 'Unable to check GPU status';
+            }
+        }
+
+        window.addEventListener('load', async function() {
+            console.log('CHAD 2.0 App loaded successfully');
+            await checkGpuStatus();
+            setInterval(checkGpuStatus, 30000);
+        });
+    </script>
+</body>
+</html>

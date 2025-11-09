@@ -27,6 +27,11 @@ class User(UserMixin, db.Model):
     free_generations_used_today = db.Column(db.Integer, default=0)
     last_free_generation_date = db.Column(db.Date)
     
+    # Email verification
+    is_verified = db.Column(db.Boolean, default=False, nullable=False)
+    verification_token = db.Column(db.String(100))
+    verification_token_created_at = db.Column(db.DateTime)
+    
     # Relationships
     generations = db.relationship('Generation', backref='user', lazy=True, cascade='all, delete-orphan')
     transactions = db.relationship('Transaction', backref='user', lazy=True, cascade='all, delete-orphan')
@@ -95,13 +100,24 @@ class User(UserMixin, db.Model):
         successful_generations = Generation.query.filter_by(user_id=self.id, status='completed').count()
         credits_used = Generation.query.filter_by(user_id=self.id, used_paid_credit=True).count()
         
+        # Facial evaluation stats
+        total_evaluations = FacialEvaluation.query.filter_by(user_id=self.id).count()
+        pending_evaluations = FacialEvaluation.query.filter_by(user_id=self.id, status='pending').count()
+        completed_evaluations = FacialEvaluation.query.filter_by(user_id=self.id, status='completed').count()
+        
         return {
             'total_generations': total_generations,
             'today_generations': today_generations,
             'successful_generations': successful_generations,
             'credits_used': credits_used,
             'credits_remaining': self.credits,
-            'free_generations_remaining': 1 - self.free_generations_used_today if self.can_generate_free() else 0
+            'free_generations_remaining': 1 - self.free_generations_used_today if self.can_generate_free() else 0,
+            'total_evaluations': total_evaluations,
+            'pending_evaluations': pending_evaluations,
+            'completed_evaluations': completed_evaluations,
+            'total_ratios_morphs': RatiosMorph.query.filter_by(user_id=self.id).count(),
+            'pending_ratios_morphs': RatiosMorph.query.filter_by(user_id=self.id, status='pending').count(),
+            'completed_ratios_morphs': RatiosMorph.query.filter_by(user_id=self.id, status='completed').count()
         }
     
     def to_dict(self):
@@ -188,6 +204,120 @@ class Transaction(db.Model):
             'payment_status': self.payment_status,
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at.isoformat() if self.completed_at else None
+        }
+
+class FacialEvaluation(db.Model):
+    """Model for facial evaluation requests and responses"""
+    
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Request details
+    original_image_filename = db.Column(db.String(255), nullable=False)  # User's original photo
+    morphed_image_filename = db.Column(db.String(255))  # Morphed result (if from generation)
+    secondary_image_filename = db.Column(db.String(255))  # Optional secondary photo
+    generation_id = db.Column(db.String(36), db.ForeignKey('generation.id'))  # Link to generation if applicable
+    
+    # Status and timestamps
+    status = db.Column(db.String(20), default='Pending')  # Pending, Completed, Cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    completed_at = db.Column(db.DateTime)
+    
+    # Admin response
+    admin_response = db.Column(db.Text)  # Admin's facial evaluation and rating
+    admin_id = db.Column(db.String(36), db.ForeignKey('user.id'))  # Admin who responded
+    
+    # Credit tracking
+    credits_used = db.Column(db.Integer, default=15)  # Cost of facial evaluation
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref='facial_evaluations')
+    admin = db.relationship('User', foreign_keys=[admin_id])
+    generation = db.relationship('Generation', backref='facial_evaluation')
+    
+    def to_dict(self):
+        """Convert facial evaluation to dictionary"""
+        return {
+            'id': self.id,
+            'status': self.status,
+            'created_at': self.created_at.isoformat(),
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'admin_response': self.admin_response,
+            'credits_used': self.credits_used,
+            'has_morphed_image': bool(self.morphed_image_filename)
+        }
+
+class RatiosMorph(db.Model):
+    """Model for ratios morph requests and responses"""
+    
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Request details
+    original_image_filename = db.Column(db.String(255), nullable=False)  # User's original photo
+    morphed_image_filename = db.Column(db.String(255))  # Morphed result
+    
+    # Status and timestamps
+    status = db.Column(db.String(20), default='Pending')  # Pending, Completed, Cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    completed_at = db.Column(db.DateTime)
+    
+    # Admin response
+    admin_response = db.Column(db.Text)  # Admin's ratios morph explanation
+    admin_id = db.Column(db.String(36), db.ForeignKey('user.id'))  # Admin who responded
+    
+    # Credit tracking
+    credits_used = db.Column(db.Integer, default=40)  # Cost of ratios morph
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref='ratios_morphs')
+    admin = db.relationship('User', foreign_keys=[admin_id])
+    
+    def to_dict(self):
+        """Convert ratios morph to dictionary"""
+        return {
+            'id': self.id,
+            'status': self.status,
+            'created_at': self.created_at.isoformat(),
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'admin_response': self.admin_response,
+            'credits_used': self.credits_used
+        }
+
+class SystemPrompt(db.Model):
+    """Model to store the global system prompt for AI models"""
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(100), unique=True, nullable=False, default='default_facial_analysis_prompt')
+    prompt_text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'prompt_text': self.prompt_text,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+class AutomatedFacialAnalysis(db.Model):
+    """Model to store automated facial analysis results"""
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    generation_id = db.Column(db.String(36), db.ForeignKey('generation.id'), nullable=False, unique=True)
+    analysis_result = db.Column(db.JSON, nullable=False) # Store the detailed analysis as JSON
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    credits_used = db.Column(db.Integer, default=0)
+
+    generation = db.relationship('Generation', backref='automated_analysis')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'generation_id': self.generation_id,
+            'analysis_result': self.analysis_result,
+            'created_at': self.created_at.isoformat(),
+            'credits_used': self.credits_used
         }
 
 class ApiKey(db.Model):

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
     <style>
         * {
             margin: 0;
@@ -496,6 +499,18 @@
             font-weight: 500;
         }
 
+        .working-hours {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -540,9 +555,22 @@
     </style>
 </head>
 <body>
+    <div class="working-hours">
+        Morph App Working Hours: 6pm - 12am EST
+    </div>
     <div class="container">
         <div class="logo">🔥 PSL Accurate Morph</div>
         <div class="subtitle">Transform your face with AI-powered morphing</div>
+        
+        <!-- Navigation Links -->
+        <div style="margin: 20px 0; text-align: center;">
+            <a href="/facial-evaluation" style="background: #3498db; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600; margin: 0 5px; display: inline-block;">
+                📋 My Facial Evaluations
+            </a>
+            <a href="/dashboard" style="background: #9b59b6; color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600; margin: 0 5px; display: inline-block;">
+                🏠 Dashboard
+            </a>
+        </div>
         
         <!-- GPU Status Indicator -->
         <div class="gpu-status" id="gpuStatus">
@@ -561,21 +589,24 @@
             <img id="previewImage" class="preview-image" alt="Preview">
         </div>
         
-        <!-- Transformation Mode Selection -->
-        <div class="mode-section">
+        <!-- Mode Selection Section -->
+        <div class="mode-section" id="modeSection" style="display: none;">
             <div class="tier-title">Choose Transformation Mode</div>
             <div class="mode-buttons">
                 <button class="mode-btn active" id="fullFaceBtn" data-mode="full">
-                    🎭 Full Face Transform
+                    🎭 Full Face
                 </button>
-                <button class="mode-btn" id="customFeatureBtn" data-mode="custom">
+                <button class="mode-btn" id="customFeaturesBtn" data-mode="custom">
                     🎯 Custom Features
+                </button>
+                <button class="mode-btn" id="referenceChadBtn" data-mode="reference">
+                    💪 Reference Chad
                 </button>
             </div>
         </div>
-
+        
         <!-- Full Face Transformation Section -->
-        <div class="tier-section" id="fullFaceSection">
+        <div class="tier-section" id="fullFaceSection" style="display: none;">
             <div class="tier-title">Choose Your Transformation Tier</div>
             <div class="tier-slider-container">
                 <input type="range"
@@ -597,39 +628,53 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Custom Features Section -->
         <div class="features-section" id="customFeaturesSection" style="display: none;">
-            <div class="tier-title">Select Facial Features to Transform</div>
+            <div class="tier-title">Select Features to Transform</div>
             <div class="features-grid">
                 <div class="feature-option" data-feature="eyes">
-                    <div class="feature-icon">👁️</div>
+                    <div class="feature-icon">👀</div>
                     <div class="feature-name">Eyes</div>
-                </div>
-                <div class="feature-option" data-feature="eyebrows">
-                    <div class="feature-icon">🤨</div>
-                    <div class="feature-name">Eyebrows</div>
                 </div>
                 <div class="feature-option" data-feature="nose">
                     <div class="feature-icon">👃</div>
-                    <div class="feature-name">Nose Shape</div>
+                    <div class="feature-name">Nose</div>
                 </div>
-                <div class="feature-option" data-feature="lips">
+                <div class="feature-option" data-feature="mouth">
                     <div class="feature-icon">👄</div>
-                    <div class="feature-name">Lips</div>
+                    <div class="feature-name">Mouth</div>
                 </div>
-                <div class="feature-option" data-feature="jaw">
+                <div class="feature-option" data-feature="skull">
                     <div class="feature-icon">🦴</div>
-                    <div class="feature-name">Facial Contour</div>
-                </div>
-                <div class="feature-option" data-feature="chin">
-                    <div class="feature-icon">🗿</div>
-                    <div class="feature-name">Chin</div>
+                    <div class="feature-name">Skull (Face Shape)</div>
                 </div>
             </div>
             <div class="custom-info">
                 <div class="custom-info-text">
-                    ⚡ Custom features use fixed 50% intensity for optimal results
+                    ✨ Custom features use 30% transformation intensity for precise results
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reference Chad Section -->
+        <div class="features-section" id="referenceChadSection" style="display: none;">
+            <div class="tier-title">Select Reference Chad</div>
+            <div class="features-grid">
+                <div class="feature-option" data-chad="barrett">
+                    <div class="feature-name">Jordan Barrett</div>
+                </div>
+                <div class="feature-option" data-chad="gandy">
+                    <div class="feature-name">David Gandy</div>
+                </div>
+                <div class="feature-option" data-chad="elias">
+                    <div class="feature-name">Elias De Poot</div>
+                </div>
+                <div class="feature-option" data-chad="pitt">
+                    <div class="feature-name">Brad Pitt</div>
+                </div>
+                <div class="feature-option" data-chad="hernan">
+                    <div class="feature-name">Hernan Drago</div>
                 </div>
             </div>
         </div>
@@ -652,6 +697,35 @@
                 <a href="#" class="download-btn" id="downloadBtn">📥 Download Result</a>
                 <button class="reset-btn" id="resetBtn">🔄 Start Over</button>
             </div>
+            
+            <!-- Facial Evaluation Prompt -->
+            <div class="facial-evaluation-prompt" id="facialEvaluationPrompt" style="margin-top: 30px; padding: 20px; background: #e8f5e8; border: 2px solid #27ae60; border-radius: 12px; text-align: center;">
+                <h4 style="color: #27ae60; margin-bottom: 15px;">👨‍⚕️ Want Expert Analysis?</h4>
+                <p style="color: #2c3e50; margin-bottom: 20px; font-size: 1.1em;">
+                    Our expert (me) will analyze your facial features, provide detailed feedback on your areas for improvement (list in order of importance) and finally give you a current personal rating.
+                </p>
+                <button class="facial-eval-btn" id="requestFacialEvalBtn" style="background: #27ae60; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    🔬 Request Personal Rating & Analysis (20 Credits)
+                </button>
+                <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 10px;">
+                    Get detailed analysis from our expert within 24 hours
+                </p>
+            </div>
+
+            <!-- Automated Facial Evaluation Button -->
+            <div class="automated-facial-evaluation-section" id="automatedFacialEvaluationSection" style="margin-top: 30px; padding: 20px; background: #e8f5e8; border: 2px solid #3498db; border-radius: 12px; text-align: center; display: none;">
+                <h4 style="color: #3498db; margin-bottom: 15px;">🤖 Automated Facial Evaluation</h4>
+                <p style="color: #2c3e50; margin-bottom: 20px; font-size: 1.1em;">
+                    Get an instant AI-powered analysis of the differences in facial features between your original and morphed image.
+                </p>
+                <button class="facial-eval-btn" id="requestAutomatedFacialEvalBtn" style="background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    ✨ Automatic facial evaluation (most visible changes)
+                </button>
+                <div id="automatedAnalysisResult" style="margin-top: 20px; text-align: left; display: none;">
+                    <h5 style="color: #2c3e50; margin-bottom: 10px;">Analysis Result:</h5>
+<div id="analysisResultText" style="background: #f0f8fa; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; color: #34495e;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -659,14 +733,22 @@
         let selectedFile = null;
         let selectedDenoise = 0.10; // Default to 10%
         let currentPromptId = null;
-        let transformMode = 'full'; // 'full' or 'custom'
+        let currentGenerationId = null; // Added to store the generation ID
+        let currentMode = 'full'; // 'full', 'custom', or 'reference'
         let selectedFeatures = []; // Array of selected features for custom mode
+        let selectedChad = null; // Selected chad for reference mode
+        let faceSwapIntensity = 0.5; // Default 50% intensity for face swap
 
         // DOM elements
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const previewArea = document.getElementById('previewArea');
         const previewImage = document.getElementById('previewImage');
+        const modeSection = document.getElementById('modeSection');
+        const fullFaceBtn = document.getElementById('fullFaceBtn');
+        const customFeaturesBtn = document.getElementById('customFeaturesBtn');
+        const fullFaceSection = document.getElementById('fullFaceSection');
+        const customFeaturesSection = document.getElementById('customFeaturesSection');
         const tierSlider = document.getElementById('tierSlider');
         const currentTier = document.getElementById('currentTier');
         const processBtn = document.getElementById('processBtn');
@@ -755,11 +837,19 @@
             };
             reader.readAsDataURL(file);
 
-            // Enable tier slider
-            tierSlider.disabled = false;
+            // Show mode selection
+            modeSection.style.display = 'block';
+            
+            // Show appropriate section based on current mode
+            updateModeDisplay();
+
+            // Enable tier slider for full face mode
+            if (currentMode === 'full') {
+                tierSlider.disabled = false;
+            }
 
             // Enable process button
-            processBtn.disabled = false;
+            updateProcessButton();
 
             // Update upload area
             uploadArea.innerHTML = `
@@ -769,10 +859,122 @@
             `;
         }
 
+        // Mode selection handling
+        fullFaceBtn.addEventListener('click', function() {
+            currentMode = 'full';
+            selectedFeatures = [];
+            selectedChad = null;
+            // Reset to tier slider value for full face mode
+            selectedDenoise = parseInt(tierSlider.value) / 100;
+            updateModeButtons();
+            updateModeDisplay();
+            updateProcessButton();
+        });
+
+        customFeaturesBtn.addEventListener('click', function() {
+            currentMode = 'custom';
+            selectedFeatures = [];
+            selectedChad = null;
+            selectedDenoise = 0.3; // Fixed 30% for custom features
+            updateModeButtons();
+            updateModeDisplay();
+            updateProcessButton();
+        });
+
+        document.getElementById('referenceChadBtn').addEventListener('click', function() {
+            currentMode = 'reference';
+            selectedFeatures = [];
+            selectedChad = null;
+            faceSwapIntensity = 0.5; // Default 50% intensity
+            updateModeButtons();
+            updateModeDisplay();
+            updateProcessButton();
+        });
+
+        function updateModeButtons() {
+            fullFaceBtn.classList.toggle('active', currentMode === 'full');
+            customFeaturesBtn.classList.toggle('active', currentMode === 'custom');
+            document.getElementById('referenceChadBtn').classList.toggle('active', currentMode === 'reference');
+        }
+
+        function updateModeDisplay() {
+            const referenceChadSection = document.getElementById('referenceChadSection');
+            
+            if (currentMode === 'full') {
+                fullFaceSection.style.display = 'block';
+                customFeaturesSection.style.display = 'none';
+                referenceChadSection.style.display = 'none';
+            } else if (currentMode === 'custom') {
+                fullFaceSection.style.display = 'none';
+                customFeaturesSection.style.display = 'block';
+                referenceChadSection.style.display = 'none';
+            } else if (currentMode === 'reference') {
+                fullFaceSection.style.display = 'none';
+                customFeaturesSection.style.display = 'none';
+                referenceChadSection.style.display = 'block';
+            }
+        }
+
+        function updateProcessButton() {
+            if (!selectedFile) {
+                processBtn.disabled = true;
+                return;
+            }
+
+            if (currentMode === 'full') {
+                processBtn.disabled = false;
+            } else if (currentMode === 'custom') {
+                processBtn.disabled = selectedFeatures.length === 0;
+            } else if (currentMode === 'reference') {
+                processBtn.disabled = !selectedChad;
+            }
+        }
+
+        // Feature selection handling
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.feature-option')) {
+                const featureOption = e.target.closest('.feature-option');
+                const feature = featureOption.dataset.feature;
+                const chad = featureOption.dataset.chad;
+                
+                if (currentMode === 'custom' && feature) {
+                    if (selectedFeatures.includes(feature)) {
+                        // Deselect feature
+                        selectedFeatures = selectedFeatures.filter(f => f !== feature);
+                        featureOption.classList.remove('selected');
+                    } else {
+                        // Select feature (for now, only allow one feature at a time)
+                        selectedFeatures = [feature];
+                        // Remove selection from all features
+                        document.querySelectorAll('.feature-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        // Select current feature
+                        featureOption.classList.add('selected');
+                    }
+                } else if (currentMode === 'reference' && chad) {
+                    // Handle chad selection
+                    selectedChad = chad;
+                    // Remove selection from all chads
+                    document.querySelectorAll('[data-chad]').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Select current chad
+                    featureOption.classList.add('selected');
+                }
+                
+                updateProcessButton();
+            }
+        });
+
         // Tier slider handling
         tierSlider.addEventListener('input', function() {
             const value = parseInt(this.value);
-            selectedDenoise = value / 100; // Convert to decimal (10-25 becomes 0.10-0.25)
+            
+            // Only update selectedDenoise if in full face mode
+            if (currentMode === 'full') {
+                selectedDenoise = value / 100; // Convert to decimal (10-25 becomes 0.10-0.25)
+            }
             
             const tier = tierMapping[value];
             if (tier) {
@@ -780,6 +982,7 @@
                 document.querySelector('.current-tier-description').textContent = tier.description;
             }
         });
+
 
         // Process button
         processBtn.addEventListener('click', async function() {
@@ -816,8 +1019,10 @@
                     body: JSON.stringify({
                         filename: uploadResult.filename,
                         denoise: selectedDenoise,
-                        transform_mode: transformMode,
-                        selected_features: selectedFeatures
+                        transform_mode: currentMode,
+                        selected_features: selectedFeatures,
+                        selected_chad: selectedChad,
+                        face_swap_intensity: faceSwapIntensity
                     })
                 });
                 
@@ -828,6 +1033,7 @@
                 }
                 
                 currentPromptId = processResult.prompt_id;
+                currentGenerationId = processResult.generation_id;
                 
                 // Start polling for status
                 pollStatus();
@@ -857,54 +1063,62 @@
                 const response = await fetch(`/status/${currentPromptId}`);
                 const result = await response.json();
                 
-                if (result.complete) {
-                    showStatus('Transformation complete! Preparing download...', 'success');
-                    
-                    // Get result
-                    const resultResponse = await fetch(`/result/${currentPromptId}`);
-                    
-                    if (resultResponse.ok) {
-                        const blob = await resultResponse.blob();
-                        const imageUrl = URL.createObjectURL(blob);
+                    if (result.complete) {
+                        showStatus('Transformation complete! Preparing download...', 'success');
                         
-                        // Force refresh by adding timestamp to prevent caching
-                        const timestamp = Date.now();
-                        const tierName = tierMapping[Math.round(selectedDenoise * 100)]?.name || 'custom';
-                        const filename = `morphed_${tierName.replace(/\s+/g, '_')}_${timestamp}.png`;
+                        // Store generation ID for facial evaluation
+                        currentGenerationId = result.generation_id;
                         
-                        // Clear any previous result to ensure fresh display
-                        if (resultImage.previousSrc) {
-                            URL.revokeObjectURL(resultImage.previousSrc);
+                        // Get result
+                        const resultResponse = await fetch(`/result/${currentPromptId}`);
+                        
+                        if (resultResponse.ok) {
+                            const blob = await resultResponse.blob();
+                            const imageUrl = URL.createObjectURL(blob);
+                            
+                            // Force refresh by adding timestamp to prevent caching
+                            const timestamp = Date.now();
+                            const tierName = tierMapping[Math.round(selectedDenoise * 100)]?.name || 'custom';
+                            const filename = `morphed_${tierName.replace(/\s+/g, '_')}_${timestamp}.png`;
+                            
+                            // Clear any previous result to ensure fresh display
+                            if (resultImage.previousSrc) {
+                                URL.revokeObjectURL(resultImage.previousSrc);
+                            }
+                            
+                            // Show result (don't add query params to blob URLs)
+                            resultImage.src = imageUrl;
+                            resultImage.onload = function() {
+                                // Force browser to refresh the image display
+                                this.style.display = 'none';
+                                this.offsetHeight; // Trigger reflow
+                                this.style.display = '';
+                            };
+                            
+                            downloadBtn.href = imageUrl;
+                            downloadBtn.download = filename;
+                            
+                            // Store reference for cleanup
+                            resultImage.previousSrc = imageUrl;
+                            
+                            hideStatus();
+                            resultArea.classList.add('show');
+                            
+                            // Re-enable process button for new runs
+                            processBtn.disabled = false;
+
+                            // Show automated facial evaluation button if in full mode
+                            if (currentMode === 'full') {
+                                document.getElementById('automatedFacialEvaluationSection').style.display = 'block';
+                            }
+                        } else {
+                            throw new Error('Failed to retrieve result');
                         }
-                        
-                        // Show result (don't add query params to blob URLs)
-                        resultImage.src = imageUrl;
-                        resultImage.onload = function() {
-                            // Force browser to refresh the image display
-                            this.style.display = 'none';
-                            this.offsetHeight; // Trigger reflow
-                            this.style.display = '';
-                        };
-                        
-                        downloadBtn.href = imageUrl;
-                        downloadBtn.download = filename;
-                        
-                        // Store reference for cleanup
-                        resultImage.previousSrc = imageUrl;
-                        
-                        hideStatus();
-                        resultArea.classList.add('show');
-                        
-                        // Re-enable process button for new runs
-                        processBtn.disabled = false;
                     } else {
-                        throw new Error('Failed to retrieve result');
+                        showStatus(result.message || 'Processing...', 'processing');
+                        // Continue polling
+                        setTimeout(pollStatus, 2000);
                     }
-                } else {
-                    showStatus(result.message || 'Processing...', 'processing');
-                    // Continue polling
-                    setTimeout(pollStatus, 2000);
-                }
                 
             } catch (error) {
                 showStatus(`Error: ${error.message}`, 'error');
@@ -953,6 +1167,11 @@
             
             // Clear file input
             fileInput.value = '';
+
+            // Hide automated facial evaluation section and clear results
+            document.getElementById('automatedFacialEvaluationSection').style.display = 'none';
+            document.getElementById('automatedAnalysisResult').style.display = 'none';
+            document.getElementById('analysisResultText').textContent = '';
         });
 
         // GPU Status checking
@@ -981,70 +1200,6 @@
             }
         }
 
-        // Mode switching functionality
-        const modeButtons = document.querySelectorAll('.mode-btn');
-        const fullFaceSection = document.getElementById('fullFaceSection');
-        const customFeaturesSection = document.getElementById('customFeaturesSection');
-        const featureOptions = document.querySelectorAll('.feature-option');
-
-        modeButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const mode = this.dataset.mode;
-                
-                // Update active button
-                modeButtons.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Update transform mode
-                transformMode = mode;
-                
-                // Show/hide sections
-                if (mode === 'full') {
-                    fullFaceSection.style.display = 'block';
-                    customFeaturesSection.style.display = 'none';
-                } else {
-                    fullFaceSection.style.display = 'none';
-                    customFeaturesSection.style.display = 'block';
-                }
-                
-                // Update process button state
-                updateProcessButtonState();
-            });
-        });
-
-        // Feature selection functionality
-        featureOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                const feature = this.dataset.feature;
-                
-                if (this.classList.contains('selected')) {
-                    // Deselect feature
-                    this.classList.remove('selected');
-                    selectedFeatures = selectedFeatures.filter(f => f !== feature);
-                } else {
-                    // Select feature
-                    this.classList.add('selected');
-                    selectedFeatures.push(feature);
-                }
-                
-                // Update process button state
-                updateProcessButtonState();
-            });
-        });
-
-        function updateProcessButtonState() {
-            if (!selectedFile) {
-                processBtn.disabled = true;
-                return;
-            }
-            
-            if (transformMode === 'full') {
-                processBtn.disabled = false;
-            } else {
-                // Custom mode - need at least one feature selected
-                processBtn.disabled = selectedFeatures.length === 0;
-            }
-        }
 
         // Cooldown timer functionality
         let cooldownTimer = null;
@@ -1060,7 +1215,7 @@
             const updateButton = () => {
                 if (remaining <= 0) {
                     processBtn.textContent = '🚀 Start Transformation';
-                    processBtn.disabled = !selectedFile || (transformMode === 'custom' && selectedFeatures.length === 0);
+                    processBtn.disabled = !selectedFile;
                     clearInterval(cooldownTimer);
                     cooldownTimer = null;
                     hideStatus();
@@ -1073,6 +1228,121 @@
             
             updateButton(); // Initial call
             cooldownTimer = setInterval(updateButton, 1000);
+        }
+
+        // Facial Evaluation functionality
+        // currentGenerationId is already declared at the top
+
+        // Add facial evaluation button handler
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'requestFacialEvalBtn') {
+                requestFacialEvaluation();
+            } else if (e.target.id === 'requestAutomatedFacialEvalBtn') {
+                requestAutomatedFacialEvaluation();
+            }
+        });
+
+        async function requestAutomatedFacialEvaluation() {
+            const btn = document.getElementById('requestAutomatedFacialEvalBtn');
+            const analysisResultDiv = document.getElementById('automatedAnalysisResult');
+            const analysisResultText = document.getElementById('analysisResultText');
+
+            if (!currentGenerationId) {
+                alert('No generation found. Please complete a transformation first.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            analysisResultDiv.style.display = 'none';
+            analysisResultText.textContent = '';
+
+            try {
+                const response = await fetch('/analyze-facial-features', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        generation_id: currentGenerationId
+                    })
+                });
+
+                const result = await response.json();
+
+if (result.success) {
+                    analysisResultText.innerHTML = result.analysis_result;
+                    analysisResultDiv.style.display = 'block';
+                    btn.textContent = '✨ Automatic facial evaluation (most visible changes)';
+                } else {
+                    alert(`Error: ${result.error}`);
+                    btn.textContent = '✨ Automatic facial evaluation (most visible changes)';
+                }
+                btn.disabled = false;
+
+            } catch (error) {
+                alert('Failed to perform automated analysis. Please try again.');
+                btn.disabled = false;
+                btn.textContent = '✨ Automatic facial evaluation (most visible changes)';
+            }
+        }
+
+        async function requestFacialEvaluation() {
+            const btn = document.getElementById('requestFacialEvalBtn');
+            if (!currentGenerationId) {
+                alert('No generation found. Please complete a transformation first.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Requesting...';
+
+            try {
+                const response = await fetch('/request-facial-evaluation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        generation_id: currentGenerationId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Replace the prompt with success message
+                    const promptDiv = document.getElementById('facialEvaluationPrompt');
+                    promptDiv.innerHTML = `
+                        <h4 style="color: #27ae60; margin-bottom: 15px;">✅ Request Submitted!</h4>
+                        <p style="color: #2c3e50; margin-bottom: 15px; font-size: 1.1em;">
+                            Your facial evaluation request has been submitted successfully!
+                        </p>
+                        <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 15px;">
+                            Our expert will provide detailed analysis within 24 hours.
+                        </p>
+                        <a href="/facial-evaluation" style="background: #27ae60; color: white; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-size: 1.1em; font-weight: 600; display: inline-block;">
+                            📋 View My Requests
+                        </a>
+                        <p style="color: #7f8c8d; font-size: 0.9em; margin-top: 10px;">
+                            Remaining Credits: ${result.remaining_credits}
+                        </p>
+                    `;
+                } else {
+                    if (result.need_credits) {
+                        alert(`${result.error}\n\nYou will be redirected to buy credits.`);
+                        window.location.href = '/payments/buy-credits';
+                    } else {
+                        alert(result.error);
+                        btn.disabled = false;
+                        btn.textContent = '🔬 Request Facial Evaluation (20 Credits)';
+                    }
+                }
+            } catch (error) {
+                alert('Failed to submit request. Please try again.');
+                btn.disabled = false;
+                btn.textContent = '🔬 Request Facial Evaluation (20 Credits)';
+            }
         }
 
         // Check GPU status on load and every 30 seconds

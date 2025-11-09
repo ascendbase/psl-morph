@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Ratios Morphs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Ratios Morph Requests</h1>
+        
+        <h2>Pending Requests</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Requested At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for morph in pending_morphs %}
+                <tr>
+                    <td>{{ morph.id }}</td>
+                    <td>{{ morph.user.email }}</td>
+                    <td>{{ morph.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_view_ratios_morph', morph_id=morph.id) }}" class="btn btn-primary btn-sm">Respond</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Completed Requests</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Requested At</th>
+                    <th>Completed At</th>
+                    <th>Admin</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for morph in completed_morphs %}
+                <tr>
+                    <td>{{ morph.id }}</td>
+                    <td>{{ morph.user.email }}</td>
+                    <td>{{ morph.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ morph.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ morph.admin.email if morph.admin else 'N/A' }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_view_ratios_morph', morph_id=morph.id) }}" class="btn btn-info btn-sm">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

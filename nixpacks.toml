@@ -1,3 +1,5 @@
+# Force a full rebuild on Railway to bypass stale cache
+# Last updated: 2025-08-22 06:28 AM UTC
 [phases.setup]
 nixPkgs = ["python3", "postgresql_16.dev", "gcc"]
 

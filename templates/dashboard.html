@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
     <style>
         * {
             margin: 0;
@@ -155,6 +158,17 @@
             background: #ecf0f1;
             border-color: #95a5a6;
         }
+
+        .btn-special {
+            background: #8e44ad;
+            color: white;
+            border: 1px solid #8e44ad;
+        }
+
+        .btn-special:hover {
+            background: #9b59b6;
+            border-color: #9b59b6;
+        }
         
         .recent-generations {
             background: white;
@@ -237,6 +251,14 @@
             margin-bottom: 1rem;
             color: #333;
         }
+
+        .working-hours {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
         
         @media (max-width: 768px) {
             .header-content {
@@ -257,6 +279,9 @@
     </style>
 </head>
 <body>
+    <div class="working-hours">
+        Morph App Working Hours: 6pm - 12am EST
+    </div>
     <header class="header">
         <div class="header-content">
             <div class="logo">🔥 PSL Accurate Face Morph</div>
@@ -295,11 +320,23 @@
             <a href="{{ url_for('app_interface') }}" class="btn btn-primary">
                 🎨 Start Morphing
             </a>
+            <a href="{{ url_for('chad_2_0_interface') }}" class="btn btn-primary">
+                ⚡ CHAD 2.0 Morphing
+            </a>
+            <a href="{{ url_for('facial_evaluation_dashboard') }}" class="btn btn-outline">
+                👨‍⚕️ Facial Evaluation
+            </a>
+            <a href="{{ url_for('ratios_morph_dashboard') }}" class="btn btn-outline">
+                📏 Ratios Morph
+            </a>
             <a href="{{ url_for('payments.buy_credits') }}" class="btn btn-success">
                 💳 Buy Credits
             </a>
             <a href="{{ url_for('auth.profile') }}" class="btn btn-outline">
                 👤 Profile Settings
+            </a>
+            <a href="https://ascendbase.pro/" class="btn btn-special" target="_blank">
+                Show all looksmaxing resources
             </a>
         </div>
         
@@ -330,5 +367,27 @@
             {% endif %}
         </div>
     </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

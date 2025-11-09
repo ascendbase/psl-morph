@@ -1,0 +1,84 @@
+# RunPod ComfyUI with Impact Pack Pre-installed
+# Optimized for Morph App Workflows
+
+FROM runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel-ubuntu22.04
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone ComfyUI
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI
+
+# Install ComfyUI dependencies
+WORKDIR /app/ComfyUI
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install custom nodes in correct order
+WORKDIR /app/ComfyUI/custom_nodes
+
+# 1. Install ComfyUI-Impact-Pack
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git && \
+    cd ComfyUI-Impact-Pack && \
+    pip install --no-cache-dir -r requirements.txt && \
+    cd ..
+
+# 2. Install ComfyUI-Impact-Subpack (required dependency)
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack.git && \
+    cd ComfyUI-Impact-Subpack && \
+    pip install --no-cache-dir -r requirements.txt && \
+    cd ..
+
+# Create model directories
+RUN mkdir -p /app/ComfyUI/models/checkpoints && \
+    mkdir -p /app/ComfyUI/models/loras && \
+    mkdir -p /app/ComfyUI/models/ultralytics/bbox && \
+    mkdir -p /app/ComfyUI/models/ultralytics/segm && \
+    mkdir -p /app/ComfyUI/models/sams && \
+    mkdir -p /app/ComfyUI/input && \
+    mkdir -p /app/ComfyUI/output
+
+# Download required models
+WORKDIR /app/ComfyUI/models
+
+# Download SAM model (required for FaceDetailer)
+RUN echo "Downloading SAM model..." && \
+    wget -q --show-progress -O sams/sam_vit_b_01ec64.pth \
+    https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+
+# Download face detection model (YOLO)
+RUN echo "Downloading YOLO face detection model..." && \
+    wget -q --show-progress -O ultralytics/bbox/face_yolov8m.pt \
+    https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m.pt
+
+# Set up API server
+WORKDIR /app/ComfyUI
+
+# Create startup script that accepts PORT environment variable
+RUN echo '#!/bin/bash\n\
+PORT=${PORT:-8188}\n\
+echo "Starting ComfyUI on port $PORT"\n\
+python main.py --listen 0.0.0.0 --port $PORT\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Expose port for RunPod
+EXPOSE 8188
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8188/ || exit 1
+
+# Start ComfyUI
+CMD ["/app/start.sh"]

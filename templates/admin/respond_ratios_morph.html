@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respond to Ratios Morph</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Respond to Ratios Morph</h1>
+        <p><strong>User:</strong> {{ morph.user.email }}</p>
+        <p><strong>Requested At:</strong> {{ morph.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Original Image</h2>
+                <img src="{{ url_for('get_ratios_morph_image', morph_id=morph.id, image_type='original') }}" class="img-fluid">
+            </div>
+            {% if morph.morphed_image_filename %}
+            <div class="col-md-6">
+                <h2>Morphed Image</h2>
+                <img src="{{ url_for('get_ratios_morph_image', morph_id=morph.id, image_type='morphed') }}" class="img-fluid">
+            </div>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        {% if morph.status == 'Pending' %}
+        <form action="{{ url_for('admin_view_ratios_morph', morph_id=morph.id) }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="response">Response</label>
+                <textarea class="form-control" id="response" name="response" rows="10" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="morphed_image">Upload Morphed Image</label>
+                <input type="file" class="form-control-file" id="morphed_image" name="morphed_image">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Response</button>
+        </form>
+        {% else %}
+        <h2>Response</h2>
+        <div>{{ morph.admin_response|markdown }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>

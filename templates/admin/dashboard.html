@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
     <style>
         * {
             margin: 0;
@@ -362,9 +365,13 @@
         
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="showTab('overview')">📊 Overview</button>
+            <button class="nav-tab" onclick="showTab('gpu')">🖥️ GPU Settings</button>
+            <button class="nav-tab" onclick="showTab('ai-prompt')">🤖 AI System Prompt</button>
             <button class="nav-tab" onclick="showTab('users')">👥 Users</button>
             <button class="nav-tab" onclick="showTab('payments')">💳 Payments</button>
             <button class="nav-tab" onclick="showTab('generations')">🎨 Generations</button>
+            <button class="nav-tab" onclick="showTab('facial-evaluations')">👨‍⚕️ Facial Evaluations</button>
+            <button class="nav-tab" onclick="showTab('ratios-morphs')">📏 Ratios Morphs</button>
         </div>
         
         <div class="content">
@@ -392,6 +399,98 @@
                 </div>
             </div>
             
+            <!-- GPU Settings Tab -->
+            <div id="gpu" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🖥️ GPU & Tunnel Settings</h2>
+                
+                <!-- Current GPU Status -->
+                <div class="table-container" style="margin-bottom: 30px;">
+                    <h3 style="padding: 15px; margin: 0; background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">Current GPU Status</h3>
+                    <div style="padding: 20px;">
+                        <div id="gpuStatus" style="margin-bottom: 20px;">
+                            <p>Loading GPU status...</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="refreshGpuStatus()">🔄 Refresh Status</button>
+                    </div>
+                </div>
+                
+                <!-- Manual Tunnel URL Setting -->
+                <div class="table-container">
+                    <h3 style="padding: 15px; margin: 0; background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">Manual Tunnel URL Configuration</h3>
+                    <div style="padding: 20px;">
+                        <form id="tunnelForm">
+                            <div class="form-group">
+                                <label for="tunnelUrl">Cloudflare Tunnel URL:</label>
+                                <input type="url" id="tunnelUrl" placeholder="https://your-tunnel-url.trycloudflare.com" required>
+                                <small style="color: #666; display: block; margin-top: 5px;">
+                                    Paste the exact tunnel URL from your local Cloudflare tunnel here
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">💾 Set Tunnel URL</button>
+                                <button type="button" class="btn btn-secondary" onclick="testTunnelUrl()">🧪 Test Connection</button>
+                                <button type="button" class="btn btn-danger" onclick="clearTunnelUrl()">🗑️ Clear URL</button>
+                            </div>
+                        </form>
+                        
+                        <div id="tunnelStatus" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;">
+                            <!-- Status messages will appear here -->
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>📋 Instructions:</h4>
+                            <ol style="margin: 10px 0; padding-left: 20px;">
+                                <li>Start your local ComfyUI on port 8188</li>
+                                <li>Run: <code style="background: #e9ecef; padding: 2px 6px; border-radius: 4px;">cloudflared tunnel --url http://127.0.0.1:8188</code></li>
+                                <li>Copy the tunnel URL (e.g., https://abc-def.trycloudflare.com)</li>
+                                <li>Paste it above and click "Set Tunnel URL"</li>
+                                <li>Test the connection to ensure it works</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI System Prompt Tab -->
+            <div id="ai-prompt" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🤖 AI System Prompt for Automated Facial Analysis</h2>
+                
+                <div class="table-container">
+                    <h3 style="padding: 15px; margin: 0; background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">System Prompt Configuration</h3>
+                    <div style="padding: 20px;">
+                        <form id="systemPromptForm">
+                            <div class="form-group">
+                                <label for="systemPromptText">System Prompt for AI Model:</label>
+                                <textarea id="systemPromptText" rows="15" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: monospace; font-size: 0.9em; resize: vertical;" placeholder="Enter the system prompt that will guide the AI's facial analysis..."></textarea>
+                                <small style="color: #666; display: block; margin-top: 5px;">
+                                    This prompt will be used by the AI model to analyze facial features. Include detailed instructions about the 8 facial features and their importance scores.
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">💾 Update System Prompt</button>
+                                <button type="button" class="btn btn-secondary" onclick="loadCurrentPrompt()">🔄 Load Current Prompt</button>
+                                <button type="button" class="btn btn-primary" onclick="resetToDefault()">🔧 Reset to Default</button>
+                            </div>
+                        </form>
+                        
+                        <div id="promptStatus" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;">
+                            <!-- Status messages will appear here -->
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4>📋 Instructions:</h4>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>This prompt guides the AI model when analyzing facial features automatically</li>
+                                <li>Include detailed descriptions of the 8 facial features and their importance scores</li>
+                                <li>The AI will use this prompt to compare original vs morphed images</li>
+                                <li>Changes take effect immediately for new analyses</li>
+                                <li>Keep the prompt between 100-5000 characters</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Users Tab -->
             <div id="users" class="tab-content">
                 <div class="search-box">
@@ -406,6 +505,7 @@
                                 <th>Credits</th>
                                 <th>Generations</th>
                                 <th>Status</th>
+                                <th>Verified</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
                             </tr>
@@ -423,6 +523,13 @@
                                     <span class="status-badge status-pending">Inactive</span>
                                     {% else %}
                                     <span class="status-badge status-completed">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_verified %}
+                                    <span class="status-badge status-completed">Verified</span>
+                                    {% else %}
+                                    <span class="status-badge status-pending">Not Verified</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
@@ -524,6 +631,104 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ generation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Facial Evaluations Tab -->
+            <div id="facial-evaluations" class="tab-content">
+                <div class="search-box">
+                    <input type="text" id="facialEvalSearch" placeholder="Search facial evaluations..." onkeyup="filterFacialEvaluations()">
+                </div>
+                
+                <div class="table-container">
+                    <table class="table" id="facialEvaluationsTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Response Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in facial_evaluation_requests %}
+                            <tr>
+                                <td>{{ request.user.email }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ request.status }}">
+                                        {{ request.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if request.response_date %}
+                                    {{ request.response_date.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                    <a href="/admin/facial-evaluation/{{ request.id }}" class="btn btn-primary">
+                                        👁️ View & Respond
+                                    </a>
+                                    {% else %}
+                                    <a href="/admin/facial-evaluation/{{ request.id }}" class="btn btn-secondary">
+                                        👁️ View Response
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if not facial_evaluation_requests %}
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <h3>👨‍⚕️ No Facial Evaluation Requests Yet</h3>
+                    <p>When users request facial evaluations, they will appear here for you to review and respond.</p>
+                    <div style="margin-top: 20px;">
+                        <a href="/admin/facial-evaluations" class="btn btn-primary">
+                            📁 Go to Full Facial Evaluation Management & File System
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Ratios Morphs Tab -->
+            <div id="ratios-morphs" class="tab-content">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in ratios_morph_requests %}
+                            <tr>
+                                <td>{{ request.user.email }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ request.status }}">
+                                        {{ request.status.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="/admin/ratios-morph/{{ request.id }}" class="btn btn-primary">
+                                        👁️ View & Respond
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -746,6 +951,295 @@
             }
         }
 
+        // GPU Settings Functions
+        function refreshGpuStatus() {
+            const statusDiv = document.getElementById('gpuStatus');
+            statusDiv.innerHTML = '<p>🔄 Checking GPU status...</p>';
+            
+            fetch('/gpu-status')
+                .then(response => response.json())
+                .then(data => {
+                    let statusHtml = '';
+                    if (data.available) {
+                        statusHtml = `
+                            <div style="color: #27ae60; font-weight: bold;">
+                                ✅ GPU Available - ${data.status}
+                            </div>
+                            <p><strong>Type:</strong> ${data.gpu_type}</p>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                            ${data.url ? `<p><strong>URL:</strong> ${data.url}</p>` : ''}
+                        `;
+                    } else {
+                        statusHtml = `
+                            <div style="color: #e74c3c; font-weight: bold;">
+                                ❌ GPU Unavailable - ${data.status}
+                            </div>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                            ${data.error ? `<p><strong>Error:</strong> ${data.error}</p>` : ''}
+                        `;
+                    }
+                    statusDiv.innerHTML = statusHtml;
+                })
+                .catch(error => {
+                    statusDiv.innerHTML = `
+                        <div style="color: #e74c3c; font-weight: bold;">
+                            ❌ Error checking GPU status
+                        </div>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    `;
+                });
+        }
+
+        function testTunnelUrl() {
+            const url = document.getElementById('tunnelUrl').value.trim();
+            if (!url) {
+                alert('Please enter a tunnel URL first');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('tunnelStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#fff3cd';
+            statusDiv.style.color = '#856404';
+            statusDiv.innerHTML = '🧪 Testing connection...';
+            
+            // Test the URL by trying to reach /system_stats
+            const testUrl = url.endsWith('/') ? url + 'system_stats' : url + '/system_stats';
+            
+            fetch(testUrl, { mode: 'cors' })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                })
+                .then(data => {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = `
+                        ✅ Connection successful!
+                        <br><strong>ComfyUI Version:</strong> ${data.system?.comfyui_version || 'Unknown'}
+                        <br><strong>Devices:</strong> ${data.devices?.length || 0} GPU(s) detected
+                    `;
+                })
+                .catch(error => {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.innerHTML = `❌ Connection failed: ${error.message}`;
+                });
+        }
+
+        function clearTunnelUrl() {
+            if (confirm('Are you sure you want to clear the tunnel URL?')) {
+                fetch('/register-tunnel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-TUNNEL-SECRET': 'morphpas'
+                    },
+                    body: JSON.stringify({ url: '' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('tunnelUrl').value = '';
+                    const statusDiv = document.getElementById('tunnelStatus');
+                    statusDiv.style.display = 'block';
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = '✅ Tunnel URL cleared successfully';
+                    refreshGpuStatus();
+                })
+                .catch(error => {
+                    alert('Error clearing tunnel URL: ' + error.message);
+                });
+            }
+        }
+
+        // Handle tunnel form submission
+        document.getElementById('tunnelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const url = document.getElementById('tunnelUrl').value.trim();
+            if (!url) {
+                alert('Please enter a tunnel URL');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('tunnelStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#fff3cd';
+            statusDiv.style.color = '#856404';
+            statusDiv.innerHTML = '💾 Setting tunnel URL...';
+            
+            fetch('/register-tunnel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-TUNNEL-SECRET': 'morphpas'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = '✅ Tunnel URL set successfully! GPU client updated.';
+                    refreshGpuStatus();
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.innerHTML = `❌ Error: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = `❌ Error setting tunnel URL: ${error.message}`;
+            });
+        });
+
+        function filterFacialEvaluations() {
+            const input = document.getElementById('facialEvalSearch');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('facialEvaluationsTable');
+            const rows = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length; j++) {
+                    const txtValue = cells[j].textContent || cells[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        // AI System Prompt Functions
+        function loadCurrentPrompt() {
+            const statusDiv = document.getElementById('promptStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#fff3cd';
+            statusDiv.style.color = '#856404';
+            statusDiv.innerHTML = '🔄 Loading current prompt...';
+            
+            fetch('/admin/update-system-prompt', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('systemPromptText').value = data.current_prompt;
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = '✅ Current prompt loaded successfully';
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.innerHTML = `❌ Error loading prompt: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = `❌ Error loading prompt: ${error.message}`;
+            });
+        }
+
+        function resetToDefault() {
+            if (confirm('Are you sure you want to reset to the default system prompt? This will overwrite any custom changes.')) {
+                const defaultPrompt = `You are an expert facial features analyst. Your task is to compare two images of a face, one original and one morphed, and identify the differences in facial features based on the following criteria. For each feature, evaluate the "amount of difference" on a scale of 1-10 (1 being almost no difference, 10 being a very significant difference). Then, multiply this difference score by the "importance" score (provided in parentheses next to each feature). Finally, list all features based on these individual relative importance scores, from highest to lowest.
+
+Facial Features and their Importance:
+1. Facial leanness (Importance = 8): Appearance of "tight" facial skin without any visible facial fat sagging. Shows the underlying bone structure, increases perceived facial depth via various shadows under various lighting. The desired appearance depends not only on the obvious total low body fat % levels but on the underlying bone morphology AND certain soft tissues (SMAS) morphology.
+2. Facial Width (Importance = 7): Both bizygomatic (cheekbones) and bigonial (jaw)
+3. Eyes (Importance = 6): I'm talking about the eyes morphology separately from the eyebrows appearance here. The specific relevant parameters here are: deep set, compact (smaller and more almond shaped) or bigger (rounder) and wide eyes (high PFL, low PFH) or rounder (low PFL).
+4. Nose (Importance = 5): nose tip width and bulbosity instead of narrower or more refined, sharper nose tip, symmetry, nose tip rotation (tip and nostrils pointring downward or upwards)
+5. Health Indicators (Importance = 4): Clear, homogenous (even) skin texture without wrinkles, acne scars, signs of skin aging or other skin imperfections. Symmetrical facial features like hairline, temporal bones, eyebrows, eyes (+ eye focus (no amblyopia)), nose bridge and tip, lips, chin, cheekbones, and mandible alignment. Straight hairline without balding patterns.
+6. Mouth and Lips (Importance = 3): mouth width and lips volume (both upper lip and lower lip, and their volumes ratio)
+7. Facial Angularity (Importance = 2): I'm talking specifically about the contour of the face here. Not the general facial leanness, but certain facial bones spots angularity. Angularity spots: temporal cave in, cheekbones outwards, ramus cave in, gonions outwards, mandible cave in, chin outwards (square).
+8. Eyebrows (Importance = 1): Wide (visible inner and outer corners eyebrows region), thick, closet set (vertically) eyebrows.`;
+                
+                document.getElementById('systemPromptText').value = defaultPrompt;
+                
+                const statusDiv = document.getElementById('promptStatus');
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.innerHTML = '✅ Default prompt loaded. Click "Update System Prompt" to save.';
+            }
+        }
+
+        // Handle system prompt form submission
+        document.getElementById('systemPromptForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const promptText = document.getElementById('systemPromptText').value.trim();
+            if (!promptText) {
+                alert('Please enter a system prompt');
+                return;
+            }
+            
+            if (promptText.length < 100) {
+                alert('System prompt must be at least 100 characters long');
+                return;
+            }
+            
+            if (promptText.length > 5000) {
+                alert('System prompt must be less than 5000 characters');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('promptStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#fff3cd';
+            statusDiv.style.color = '#856404';
+            statusDiv.innerHTML = '💾 Updating system prompt...';
+            
+            fetch('/admin/update-system-prompt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt_text: promptText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusDiv.innerHTML = '✅ System prompt updated successfully! Changes will take effect for new analyses.';
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusDiv.innerHTML = `❌ Error: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = `❌ Error updating prompt: ${error.message}`;
+            });
+        });
+
+        // Load GPU status when GPU tab is opened
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshGpuStatus();
+            // Load current prompt when page loads
+            loadCurrentPrompt();
+        });
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('editUserModal');
@@ -755,4 +1249,4 @@
         }
     </script>
 </body>
-</html>
+</html><environment_details>

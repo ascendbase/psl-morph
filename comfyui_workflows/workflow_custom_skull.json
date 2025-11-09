@@ -1,0 +1,312 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "real-dream-15.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "2": {
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "clip": [
+        "1",
+        1
+      ],
+      "lora_name": "chad_sd1.5.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 0.85
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "3": {
+    "inputs": {
+      "text": "chad, male model, face portrait",
+      "clip": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": "(worst quality, low quality:1.4), (bad anatomy), text, error, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, deformed face",
+      "clip": [
+        "2",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative)"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "input_image.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Original Image"
+    }
+  },
+  "6": {
+    "inputs": {
+      "model_name": "bbox/face_yolov8m.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "Face Detector"
+    }
+  },
+  "7": {
+    "inputs": {
+      "model_name": "sam_vit_b_01ec64.pth",
+      "device_mode": "AUTO"
+    },
+    "class_type": "SAMLoader",
+    "_meta": {
+      "title": "SAM Loader"
+    }
+  },
+  "8": {
+    "inputs": {
+      "image": [
+        "5",
+        0
+      ],
+      "model": [
+        "2",
+        0
+      ],
+      "clip": [
+        "2",
+        1
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "bbox_detector": [
+        "6",
+        0
+      ],
+      "sam_model_opt": [
+        "7",
+        0
+      ],
+      "segm_detector_opt": null,
+      "detailer_hook": null,
+      "scheduler_func_opt": null,
+      "wildcard": "",
+      "guide_size": 512,
+      "guide_size_for": "bbox",
+      "max_size": 1024,
+      "seed": 156680208700286,
+      "steps": 20,
+      "cfg": 8.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 0.5,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 25,
+      "bbox_crop_factor": 4.5,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 15,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "Face Detailer (Full-face transformation)"
+    }
+  },
+  "11": {
+    "inputs": {
+      "library": "insightface",
+      "provider": "CPU"
+    },
+    "class_type": "FaceAnalysisModels",
+    "_meta": {
+      "title": "Face Analysis Models"
+    }
+  },
+  "12": {
+    "inputs": {
+      "analysis_models": [
+        "11",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "area": "eyes",
+      "grow": 40,
+      "grow_tapered": true,
+      "blur": 20
+    },
+    "class_type": "FaceSegmentation",
+    "_meta": {
+      "title": "Eyes Segmentation (from original)"
+    }
+  },
+  "13": {
+    "inputs": {
+      "analysis_models": [
+        "11",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "area": "nose",
+      "grow": 10,
+      "grow_tapered": true,
+      "blur": 10
+    },
+    "class_type": "FaceSegmentation",
+    "_meta": {
+      "title": "Nose Segmentation (from original)"
+    }
+  },
+  "14": {
+    "inputs": {
+      "analysis_models": [
+        "11",
+        0
+      ],
+      "image": [
+        "5",
+        0
+      ],
+      "area": "mouth",
+      "grow": 12,
+      "grow_tapered": true,
+      "blur": 15
+    },
+    "class_type": "FaceSegmentation",
+    "_meta": {
+      "title": "Mouth Segmentation (from original)"
+    }
+  },
+  "15": {
+    "inputs": {
+      "destination": [
+        "8",
+        0
+      ],
+      "source": [
+        "5",
+        0
+      ],
+      "mask": [
+        "12",
+        0
+      ],
+      "x": 0,
+      "y": 0,
+      "offset_x": 0,
+      "offset_y": 0,
+      "resize_source": false
+    },
+    "class_type": "ImageComposite+",
+    "_meta": {
+      "title": "Paste ORIGINAL Eyes into FaceDetailer output"
+    }
+  },
+  "16": {
+    "inputs": {
+      "destination": [
+        "15",
+        0
+      ],
+      "source": [
+        "5",
+        0
+      ],
+      "mask": [
+        "13",
+        0
+      ],
+      "x": 0,
+      "y": 0,
+      "offset_x": 0,
+      "offset_y": 0,
+      "resize_source": false
+    },
+    "class_type": "ImageComposite+",
+    "_meta": {
+      "title": "Paste ORIGINAL Nose into composited image"
+    }
+  },
+  "17": {
+    "inputs": {
+      "destination": [
+        "16",
+        0
+      ],
+      "source": [
+        "5",
+        0
+      ],
+      "mask": [
+        "14",
+        0
+      ],
+      "x": 0,
+      "y": 0,
+      "offset_x": 0,
+      "offset_y": 0,
+      "resize_source": false
+    },
+    "class_type": "ImageComposite+",
+    "_meta": {
+      "title": "Paste ORIGINAL Mouth into composited image"
+    }
+  },
+  "18": {
+    "inputs": {
+      "filename_prefix": "morph_skull",
+      "images": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save final skull-morph result"
+    }
+  }
+}

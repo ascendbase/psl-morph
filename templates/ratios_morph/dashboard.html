@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratios Morph Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Ratios Morph Dashboard</h1>
+        <p>Here you can request a new Ratios Morph and view your previous requests.</p>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Request a new Ratios Morph</h5>
+                <p class="card-text">This service costs 40 credits per request. Please upload a front-facing photo, aligned in the Frankfurt plane.</p>
+                <form id="ratios-morph-form" action="/request-ratios-morph" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Upload your image</label>
+                        <input type="file" class="form-control-file" id="file" name="file" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Request Ratios Morph (40 credits)</button>
+                </form>
+            </div>
+        </div>
+
+        <h2>Your Ratios Morph Requests</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Requested At</th>
+                    <th>Completed At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for morph in morphs %}
+                <tr>
+                    <td>{{ morph.id }}</td>
+                    <td>{{ morph.status }}</td>
+                    <td>{{ morph.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ morph.completed_at.strftime('%Y-%m-%d %H:%M') if morph.completed_at else 'N/A' }}</td>
+                    <td>
+                        {% if morph.status == 'Completed' %}
+                            <a href="{{ url_for('get_ratios_morph_image', morph_id=morph.id, image_type='original') }}" class="btn btn-info btn-sm" target="_blank">Original</a>
+                            <a href="{{ url_for('get_ratios_morph_image', morph_id=morph.id, image_type='morphed') }}" class="btn btn-success btn-sm" target="_blank">Morphed</a>
+                            <button class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#responseModal-{{ morph.id }}">View Response</button>
+                        {% else %}
+                            <span class="text-muted">Processing...</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if morph.status == 'Completed' %}
+                <!-- Modal -->
+                <div class="modal fade" id="responseModal-{{ morph.id }}" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel-{{ morph.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="responseModalLabel-{{ morph.id }}">Ratios Morph Response</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {{ morph.admin_response|markdown }}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

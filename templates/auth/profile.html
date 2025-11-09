@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Face Morphing App</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
     <style>
         * {
             margin: 0;
@@ -335,8 +338,26 @@
                         <div class="stat-label">Credits Used</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">{{ stats.free_generations_used }}</div>
+                        <div class="stat-number">{{ stats.free_generations_remaining }}</div>
                         <div class="stat-label">Free Generations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>🔬 Facial Evaluation Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.total_evaluations }}</div>
+                        <div class="stat-label">Total Evaluations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.pending_evaluations }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ stats.completed_evaluations }}</div>
+                        <div class="stat-label">Completed</div>
                     </div>
                 </div>
             </div>
@@ -425,5 +446,16 @@
             </div>
         </div>
     </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>

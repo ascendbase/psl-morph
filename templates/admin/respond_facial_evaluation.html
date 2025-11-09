@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respond to Facial Evaluation</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: #2c3e50;
+        }
+        
+        .evaluation-details {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .evaluation-header {
+            padding: 1.5rem;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+        }
+        
+        .evaluation-header h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .evaluation-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .meta-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        .meta-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .images-section {
+            padding: 1.5rem;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .image-container {
+            text-align: center;
+        }
+        
+        .image-container h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .image-preview {
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+            max-width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .image-placeholder {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .response-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .response-header {
+            padding: 1.5rem;
+            background: #e8f4fd;
+            border-bottom: 1px solid #3498db;
+        }
+        
+        .response-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .response-header p {
+            color: #666;
+            margin: 0;
+        }
+        
+        .response-form {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .guidelines {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .guidelines h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .guidelines ul {
+            margin-left: 1.5rem;
+            color: #666;
+        }
+        
+        .guidelines li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .btn-outline:hover {
+            background: #ecf0f1;
+            border-color: #95a5a6;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .alert-error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .existing-response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .existing-response h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .existing-response p {
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+        
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .ai-helper-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .ai-helper-header {
+            padding: 1.5rem;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .ai-helper-header h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-helper-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .system-prompt-container, .chat-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .chat-window {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message .sender {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #3498db;
+            margin-bottom: 0.25rem;
+        }
+        
+        .chat-message.user .sender {
+            color: #27ae60;
+        }
+
+        .chat-message .text {
+            background: #ecf0f1;
+            padding: 0.75rem;
+            border-radius: 10px;
+            display: inline-block;
+            max-width: 80%;
+        }
+
+        .chat-message.user .text {
+            background: #d5f4e6;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #ai-helper-input {
+            flex-grow: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .evaluation-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .images-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🛠️ Admin Dashboard - Facial Evaluation Response</div>
+            <nav class="user-menu">
+                <span>{{ current_user.email }}</span>
+                <a href="{{ url_for('admin_facial_evaluations') }}">Back to Evaluations</a>
+                <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>🎯 Facial Evaluation Response</h1>
+            <div>
+                <a href="{{ url_for('admin_facial_evaluations') }}" class="btn btn-outline">← Back to Evaluations</a>
+            </div>
+        </div>
+        
+        <div class="evaluation-details">
+            <div class="evaluation-header">
+                <h2>📋 Evaluation Details</h2>
+                <div class="evaluation-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">User</div>
+                        <div class="meta-value">{{ evaluation.user.email }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Request Date</div>
+                        <div class="meta-value">{{ evaluation.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Credits Used</div>
+                        <div class="meta-value">{{ evaluation.credits_used }} credits</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value">
+                            <span class="status-badge status-{{ evaluation.status }}">
+                                {% if evaluation.status == 'pending' %}
+                                    ⏳ Pending
+                                {% elif evaluation.status == 'completed' %}
+                                    ✅ Completed
+                                {% else %}
+                                    ❌ Cancelled
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% if evaluation.generation_id %}
+                    <div class="meta-item">
+                        <div class="meta-label">Generation ID</div>
+                        <div class="meta-value">{{ evaluation.generation_id }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="images-section">
+                <h3 style="color: #2c3e50; margin-bottom: 1.5rem;">📸 Images for Analysis</h3>
+                <div class="images-grid">
+                    <div class="image-container">
+                        <h3>📷 Original Photo</h3>
+                        <div class="image-preview">
+                            {% if evaluation.original_image_filename %}
+                                <img src="{{ url_for('get_facial_evaluation_image', evaluation_id=evaluation.id, image_type='original') }}" 
+                                     alt="Original photo" 
+                                     onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>Image not available</div>'">
+                            {% else %}
+                                <div class="image-placeholder">No original image</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if evaluation.secondary_image_filename %}
+                    <div class="image-container">
+                        <h3>📸 Secondary Photo</h3>
+                        <div class="image-preview">
+                            <img src="{{ url_for('get_facial_evaluation_image', evaluation_id=evaluation.id, image_type='secondary') }}" 
+                                 alt="Secondary photo" 
+                                 onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>Image not available</div>'">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if evaluation.morphed_image_filename %}
+                    <div class="image-container">
+                        <h3>🎭 Morphed Result</h3>
+                        <div class="image-preview">
+                            <img src="{{ url_for('get_facial_evaluation_image', evaluation_id=evaluation.id, image_type='morphed') }}" 
+                                 alt="Morphed result" 
+                                 onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'>Image not available</div>'">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="ai-helper-section">
+            <div class="ai-helper-header">
+                <h2>🤖 AI Assistant</h2>
+                <p>Use the AI assistant to help you draft or refine your analysis. The AI will use the system prompt you provide.</p>
+            </div>
+            <div class="ai-helper-content">
+                <div class="system-prompt-container">
+                    <div class="form-group">
+                        <label for="ai-system-prompt" class="form-label">Custom System Prompt</label>
+                        <textarea id="ai-system-prompt" class="form-textarea" style="min-height: 150px;" placeholder="e.g., You are a world-class facial analyst. Your goal is to provide constructive and empowering feedback. Focus on..."></textarea>
+                    </div>
+                </div>
+                <div class="chat-container">
+                    <div class="form-label">Chat with AI</div>
+                    <div class="chat-window" id="ai-chat-window">
+                        <div class="chat-message assistant">
+                            <div class="sender">AI Assistant</div>
+                            <div class="text">Hello! How can I help you analyze this evaluation?</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="ai-helper-input" class="form-textarea" style="min-height: auto;" placeholder="Type your message...">
+                        <button id="ai-helper-send" class="btn btn-primary">Send</button>
+                    </div>
+                     <div class="loading" id="ai-helper-loading">
+                        <div class="spinner"></div>
+                        <p>AI is thinking...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="response-section">
+            <div class="response-header">
+                <h2>💬 Professional Analysis & Rating</h2>
+                <p>Provide detailed facial analysis, rating, and personalized recommendations for the user.</p>
+            </div>
+            
+            <div class="response-form">
+                {% if evaluation.status == 'completed' and evaluation.admin_response %}
+                    <div class="existing-response">
+                        <h4>✅ Your Previous Response</h4>
+                        <p>{{ evaluation.admin_response }}</p>
+                        {% if evaluation.completed_at %}
+                            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                                Completed on {{ evaluation.completed_at.strftime('%B %d, %Y at %I:%M %p') }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+                <div class="guidelines">
+                    <h4>📝 Response Guidelines</h4>
+                    <ul>
+                        <li>Provide a comprehensive facial analysis covering key features (eyes, nose, jawline, etc.)</li>
+                        <li>Give an honest but constructive rating (e.g., "7.5/10" or "Above average")</li>
+                        <li>Highlight the person's strongest facial features</li>
+                        <li>Suggest specific, actionable improvements (grooming, styling, etc.)</li>
+                        <li>Be professional, respectful, and encouraging</li>
+                        <li>Minimum 50 characters, maximum 2000 characters</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <label for="response" class="form-label">Your Professional Analysis & Rating</label>
+                    <textarea id="response" name="response" class="form-textarea" 
+                              placeholder="Example: Based on your facial structure, I'd rate you 8/10. Your strongest features are your well-defined jawline and expressive eyes. Your facial symmetry is excellent, particularly around the eye area. To enhance your appearance further, I'd recommend: 1) A more defined hairstyle that complements your face shape, 2) Grooming your eyebrows for better definition, 3) Consider a skincare routine to enhance your natural glow. Overall, you have very attractive features with great potential for enhancement through styling choices."
+                              maxlength="2000">{{ evaluation.admin_response if evaluation.admin_response else '' }}</textarea>
+                    <div class="character-count">
+                        <span id="charCount">0</span> / 2000 characters
+                    </div>
+                </div>
+                
+                <div class="alert alert-success" id="successAlert"></div>
+                <div class="alert alert-error" id="errorAlert"></div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Submitting your response...</p>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button type="button" id="submitBtn" class="btn btn-primary" disabled>
+                        🚀 Submit Professional Analysis
+                    </button>
+                    <a href="{{ url_for('admin_facial_evaluations') }}" class="btn btn-outline">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const responseTextarea = document.getElementById('response');
+        const charCount = document.getElementById('charCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        
+        // Update character count and validate
+        function updateCharCount() {
+            const length = responseTextarea.value.length;
+            charCount.textContent = length;
+            
+            // Enable/disable submit button based on length
+            if (length >= 50 && length <= 2000) {
+                submitBtn.disabled = false;
+                charCount.style.color = '#27ae60';
+            } else {
+                submitBtn.disabled = true;
+                charCount.style.color = length > 2000 ? '#e74c3c' : '#666';
+            }
+        }
+        
+        // Initial character count
+        updateCharCount();
+        
+        // Update on input
+        responseTextarea.addEventListener('input', updateCharCount);
+        
+        // Submit response
+        submitBtn.addEventListener('click', async () => {
+            const response = responseTextarea.value.trim();
+            
+            if (response.length < 50) {
+                showError('Response must be at least 50 characters long.');
+                return;
+            }
+            
+            if (response.length > 2000) {
+                showError('Response must be less than 2000 characters.');
+                return;
+            }
+            
+            try {
+                loading.style.display = 'block';
+                submitBtn.disabled = true;
+                hideAlerts();
+                
+                const result = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        response: response
+                    })
+                });
+                
+                const data = await result.json();
+                
+                if (data.success) {
+                    showSuccess(data.message);
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '{{ url_for("admin_facial_evaluations") }}';
+                    }, 2000);
+                } else {
+                    showError(data.error);
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+                submitBtn.disabled = false;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+        
+        function showSuccess(message) {
+            successAlert.textContent = message;
+            successAlert.style.display = 'block';
+            errorAlert.style.display = 'none';
+        }
+        
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            successAlert.style.display = 'none';
+        }
+        
+        function hideAlerts() {
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+        }
+
+        // AI Helper Chat functionality
+        const aiSystemPrompt = document.getElementById('ai-system-prompt');
+        const aiChatWindow = document.getElementById('ai-chat-window');
+        const aiHelperInput = document.getElementById('ai-helper-input');
+        const aiHelperSendBtn = document.getElementById('ai-helper-send');
+        const aiHelperLoading = document.getElementById('ai-helper-loading');
+
+        let conversationHistory = [];
+
+        function addMessageToChat(sender, text) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender.toLowerCase());
+            
+            const senderElement = document.createElement('div');
+            senderElement.classList.add('sender');
+            senderElement.textContent = sender === 'user' ? 'You' : 'AI Assistant';
+            
+            const textElement = document.createElement('div');
+            textElement.classList.add('text');
+            textElement.textContent = text;
+
+            messageElement.appendChild(senderElement);
+            messageElement.appendChild(textElement);
+            aiChatWindow.appendChild(messageElement);
+            aiChatWindow.scrollTop = aiChatWindow.scrollHeight;
+        }
+
+        async function handleAIChat() {
+            const userInput = aiHelperInput.value.trim();
+            if (!userInput) return;
+
+            addMessageToChat('user', userInput);
+            conversationHistory.push({ role: 'user', content: userInput });
+            aiHelperInput.value = '';
+            aiHelperLoading.style.display = 'block';
+            aiHelperSendBtn.disabled = true;
+
+            try {
+                const response = await fetch('/admin/ai-helper-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: conversationHistory,
+                        system_prompt: aiSystemPrompt.value.trim() || 'You are a helpful assistant.'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.response) {
+                    addMessageToChat('assistant', data.response);
+                    conversationHistory.push({ role: 'assistant', content: data.response });
+                } else {
+                    addMessageToChat('assistant', `Error: ${data.error || 'Unknown error'}`);
+                }
+
+            } catch (error) {
+                addMessageToChat('assistant', 'Network error. Could not reach the AI assistant.');
+            } finally {
+                aiHelperLoading.style.display = 'none';
+                aiHelperSendBtn.disabled = false;
+                aiHelperInput.focus();
+            }
+        }
+
+        aiHelperSendBtn.addEventListener('click', handleAIChat);
+        aiHelperInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleAIChat();
+            }
+        });
+
+    </script>
+</body>
+</html>

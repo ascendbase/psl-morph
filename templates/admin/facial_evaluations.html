@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Evaluations - Admin</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1834893288794089"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-1834893288794089">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            color: #2c3e50;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .stat-card.pending {
+            border-left: 4px solid #f39c12;
+        }
+        
+        .stat-card.completed {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            padding: 1.5rem;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h2 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .badge {
+            background: #3498db;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .badge.urgent {
+            background: #e74c3c;
+        }
+        
+        .evaluation-list {
+            padding: 0;
+        }
+        
+        .evaluation-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .evaluation-item:last-child {
+            border-bottom: none;
+        }
+        
+        .evaluation-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .evaluation-info {
+            flex: 1;
+        }
+        
+        .user-info {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .evaluation-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .evaluation-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2ecc71;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline {
+            background: white;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .btn-outline:hover {
+            background: #ecf0f1;
+            border-color: #95a5a6;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .evaluation-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status-pending {
+            background: #fef9e7;
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+        
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .priority-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        .priority-high {
+            background: #e74c3c;
+        }
+        
+        .priority-normal {
+            background: #3498db;
+        }
+        
+        .time-ago {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .evaluation-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .evaluation-actions {
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🛠️ Admin Dashboard - Facial Evaluations</div>
+            <nav class="user-menu">
+                <span>{{ current_user.email }}</span>
+                <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                <a href="{{ url_for('dashboard') }}">User Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>👨‍⚕️ Facial Evaluation Management</h1>
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">← Back to Admin</a>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card pending">
+                <h3>{{ pending_evaluations|length }}</h3>
+                <p>Pending Evaluations</p>
+            </div>
+            <div class="stat-card completed">
+                <h3>{{ completed_evaluations|length }}</h3>
+                <p>Recently Completed</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>⏳ Pending Evaluations</h2>
+                {% if pending_evaluations %}
+                <span class="badge urgent">{{ pending_evaluations|length }} Awaiting Response</span>
+                {% endif %}
+            </div>
+            {% if pending_evaluations %}
+                <div class="evaluation-list">
+                    {% for evaluation in pending_evaluations %}
+                        <div class="evaluation-item">
+                            <div class="evaluation-info">
+                                <div class="user-info">
+<span class="priority-indicator priority-{% if (now - evaluation.created_at).days > 1 %}high{% else %}normal{% endif %}"></span>
+                                    {{ evaluation.user.email }}
+                                </div>
+                                <div class="evaluation-details">
+                                    {% if evaluation.generation_id %}
+                                        📊 Analysis of morphed result • Generation ID: {{ evaluation.generation_id[:8] }}...
+                                    {% else %}
+                                        📸 Standalone photo analysis
+                                    {% endif %}
+                                    • Cost: {{ evaluation.credits_used }} credits
+                                </div>
+                                <div class="evaluation-date">
+                                    Requested: {{ evaluation.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                    <span class="time-ago">
+                                        ({{ ((now - evaluation.created_at).total_seconds() / 3600) | round(1) }} hours ago)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="evaluation-actions">
+                                <div class="evaluation-status status-pending">
+                                    ⏳ {% if evaluation.status == 'P' %}Pending
+                                    {% elif evaluation.status == 'C' %}Completed
+                                    {% elif evaluation.status == 'X' %}Cancelled
+                                    {% else %}{{ evaluation.status }}{% endif %}
+                                </div>
+                                <a href="{{ url_for('admin_respond_facial_evaluation', evaluation_id=evaluation.id) }}" 
+                                   class="btn btn-primary btn-sm">
+                                    🎯 Provide Analysis
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-evaluation-btn" 
+                                        data-evaluation-id="{{ evaluation.id }}" 
+                                        data-user-email="{{ evaluation.user.email }}"
+                                        title="Delete evaluation and all related images">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>✅ All caught up!</h3>
+                    <p>No pending facial evaluations at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>✅ Recently Completed</h2>
+                <span class="badge">Last 20 evaluations</span>
+            </div>
+            {% if completed_evaluations %}
+                <div class="evaluation-list">
+                    {% for evaluation in completed_evaluations %}
+                        <div class="evaluation-item">
+                            <div class="evaluation-info">
+                                <div class="user-info">{{ evaluation.user.email }}</div>
+                                <div class="evaluation-details">
+                                    {% if evaluation.generation_id %}
+                                        📊 Analysis of morphed result
+                                    {% else %}
+                                        📸 Standalone photo analysis
+                                    {% endif %}
+                                    • Completed by: {{ evaluation.admin.email if evaluation.admin else 'Unknown' }}
+                                </div>
+                                <div class="evaluation-date">
+                                    Completed: {{ evaluation.completed_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                </div>
+                            </div>
+                            <div class="evaluation-actions">
+                                <div class="evaluation-status status-completed">✅ Completed</div>
+                                <a href="{{ url_for('admin_respond_facial_evaluation', evaluation_id=evaluation.id) }}" 
+                                   class="btn btn-outline btn-sm">
+                                    👁️ View Details
+                                </a>
+                                <button class="btn btn-danger btn-sm delete-evaluation-btn" 
+                                        data-evaluation-id="{{ evaluation.id }}" 
+                                        data-user-email="{{ evaluation.user.email }}"
+                                        title="Delete evaluation and all related images">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No completed evaluations yet</h3>
+                    <p>Completed facial evaluations will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>📁 File Management</h2>
+                <div>
+                    <button id="refresh-files-btn" class="btn btn-outline btn-sm">🔄 Refresh</button>
+                    <button id="delete-orphaned-btn" class="btn btn-danger btn-sm">🧹 Delete Orphaned</button>
+                    <button id="delete-selected-btn" class="btn btn-danger btn-sm" disabled>🗑️ Delete Selected</button>
+                </div>
+            </div>
+            <div id="file-management-content">
+                <div class="loading-state" style="text-align: center; padding: 2rem; color: #666;">
+                    <div style="font-size: 1.2rem; margin-bottom: 0.5rem;">📂 Loading files...</div>
+                    <div style="font-size: 0.9rem;">Scanning Railway volume storage</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File management functionality
+        let allFiles = [];
+        let selectedFiles = [];
+        
+        // Load files on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFiles();
+            
+            // Handle delete evaluation buttons
+            document.querySelectorAll('.delete-evaluation-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var evaluationId = this.getAttribute('data-evaluation-id');
+                    var userEmail = this.getAttribute('data-user-email');
+                    
+                    if (confirm('Are you sure you want to delete this facial evaluation request from ' + userEmail + '?\n\nThis will permanently delete:\n- The evaluation record from database\n- All related images from Railway volume storage\n\nThis action cannot be undone.')) {
+                        // Show loading state
+                        var originalText = this.innerHTML;
+                        this.innerHTML = '⏳ Deleting...';
+                        this.disabled = true;
+                        
+                        // Send delete request
+                        fetch('/admin/delete_facial_evaluation/' + evaluationId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                alert('✅ Evaluation deleted successfully!\n\nDeleted:\n- Database record\n- ' + (data.images_deleted || 0) + ' image files from storage');
+                                // Reload page to update the list
+                                window.location.reload();
+                            } else {
+                                // Show error message
+                                alert('❌ Error deleting evaluation: ' + (data.error || 'Unknown error'));
+                                // Restore button
+                                this.innerHTML = originalText;
+                                this.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('❌ Network error occurred while deleting evaluation');
+                            // Restore button
+                            this.innerHTML = originalText;
+                            this.disabled = false;
+                        });
+                    }
+                });
+            });
+            
+            // File management button handlers
+            document.getElementById('refresh-files-btn').addEventListener('click', loadFiles);
+            document.getElementById('delete-orphaned-btn').addEventListener('click', deleteOrphanedFiles);
+            document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedFiles);
+        });
+        
+        function loadFiles() {
+            const content = document.getElementById('file-management-content');
+            content.innerHTML = '<div class="loading-state" style="text-align: center; padding: 2rem; color: #666;"><div style="font-size: 1.2rem; margin-bottom: 0.5rem;">📂 Loading files...</div><div style="font-size: 0.9rem;">Scanning Railway volume storage</div></div>';
+            
+            fetch('/admin/facial-evaluation-files')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allFiles = data.files;
+                        selectedFiles = [];
+                        renderFileList(data);
+                        updateDeleteButton();
+                    } else {
+                        content.innerHTML = '<div style="text-align: center; padding: 2rem; color: #e74c3c;">❌ Error loading files: ' + (data.error || 'Unknown error') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading files:', error);
+                    content.innerHTML = '<div style="text-align: center; padding: 2rem; color: #e74c3c;">❌ Network error loading files</div>';
+                });
+        }
+        
+        function renderFileList(data) {
+            const content = document.getElementById('file-management-content');
+            
+            if (data.files.length === 0) {
+                content.innerHTML = '<div class="empty-state"><h3>📂 No files found</h3><p>The facial evaluation storage is empty.</p></div>';
+                return;
+            }
+            
+            const orphanedFiles = data.files.filter(f => f.orphaned);
+            
+            let html = `
+                <div style="padding: 1rem; background: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div style="font-weight: bold; color: #2c3e50;">📊 Storage Summary</div>
+                        <div style="font-size: 0.9rem; color: #666;">Path: ${data.storage_path}</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; font-size: 0.9rem;">
+                        <div><strong>${data.total_files}</strong> total files</div>
+                        <div><strong>${data.total_size_mb} MB</strong> total size</div>
+                        <div><strong>${orphanedFiles.length}</strong> orphaned files</div>
+                        <div><strong>${data.files.length - orphanedFiles.length}</strong> linked files</div>
+                    </div>
+                </div>
+                <div style="padding: 1rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: bold; cursor: pointer;">
+                            <input type="checkbox" id="select-all-files" onchange="toggleSelectAll()">
+                            Select All Files
+                        </label>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 5px;">
+            `;
+            
+            data.files.forEach(file => {
+                const isOrphaned = file.orphaned;
+                const fileType = getFileType(file.filename);
+                const statusColor = isOrphaned ? '#e74c3c' : '#27ae60';
+                const statusText = isOrphaned ? '🔗 Orphaned' : '✅ Linked';
+                
+                html += `
+                    <div style="display: flex; align-items: center; padding: 0.75rem; border-bottom: 1px solid #f1f3f4; ${isOrphaned ? 'background: #fdf2f2;' : ''}">
+                        <input type="checkbox" class="file-checkbox" value="${file.filename}" onchange="updateSelectedFiles()" style="margin-right: 0.75rem;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: bold; color: #2c3e50; margin-bottom: 0.25rem; word-break: break-all;">
+                                ${fileType} ${file.filename}
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">
+                                ${file.size_mb} MB • Modified: ${new Date(file.modified).toLocaleString()}
+                            </div>
+                            <div style="font-size: 0.8rem; color: ${statusColor}; font-weight: bold;">
+                                ${statusText}${file.evaluation ? ` (Evaluation #${file.evaluation.id})` : ''}
+                            </div>
+                        </div>
+                        <button onclick="deleteFile('${file.filename}')" class="btn btn-danger btn-sm" style="margin-left: 0.5rem;">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+            content.innerHTML = html;
+        }
+        
+        function getFileType(filename) {
+            if (filename.includes('original')) return '📷';
+            if (filename.includes('morphed')) return '🎭';
+            if (filename.includes('secondary')) return '📸';
+            return '🖼️';
+        }
+        
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all-files');
+            const checkboxes = document.querySelectorAll('.file-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            
+            updateSelectedFiles();
+        }
+        
+        function updateSelectedFiles() {
+            const checkboxes = document.querySelectorAll('.file-checkbox:checked');
+            selectedFiles = Array.from(checkboxes).map(cb => cb.value);
+            updateDeleteButton();
+            
+            // Update select all checkbox
+            const selectAll = document.getElementById('select-all-files');
+            const allCheckboxes = document.querySelectorAll('.file-checkbox');
+            if (selectAll) {
+                selectAll.checked = selectedFiles.length === allCheckboxes.length;
+                selectAll.indeterminate = selectedFiles.length > 0 && selectedFiles.length < allCheckboxes.length;
+            }
+        }
+        
+        function updateDeleteButton() {
+            const deleteBtn = document.getElementById('delete-selected-btn');
+            deleteBtn.disabled = selectedFiles.length === 0;
+            deleteBtn.textContent = selectedFiles.length > 0 ? `🗑️ Delete Selected (${selectedFiles.length})` : '🗑️ Delete Selected';
+        }
+        
+        function deleteFile(filename) {
+            if (!confirm(`Are you sure you want to delete "${filename}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            fetch('/admin/delete-facial-evaluation-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filename: filename })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ File deleted successfully!\n\n"${filename}" has been removed from storage.`);
+                    loadFiles(); // Refresh the list
+                } else {
+                    alert('❌ Error deleting file: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Network error occurred while deleting file');
+            });
+        }
+        
+        function deleteSelectedFiles() {
+            if (selectedFiles.length === 0) return;
+            
+            if (!confirm(`Are you sure you want to delete ${selectedFiles.length} selected files?\n\nFiles to delete:\n${selectedFiles.slice(0, 5).join('\n')}${selectedFiles.length > 5 ? '\n... and ' + (selectedFiles.length - 5) + ' more' : ''}\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            const deleteBtn = document.getElementById('delete-selected-btn');
+            const originalText = deleteBtn.textContent;
+            deleteBtn.textContent = '⏳ Deleting...';
+            deleteBtn.disabled = true;
+            
+            fetch('/admin/bulk-delete-facial-evaluation-files', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filenames: selectedFiles })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let message = `✅ Bulk deletion completed!\n\nSuccessfully deleted: ${data.deleted_count} files`;
+                    if (data.errors && data.errors.length > 0) {
+                        message += `\n\nErrors (${data.errors.length}):\n${data.errors.slice(0, 3).join('\n')}${data.errors.length > 3 ? '\n... and ' + (data.errors.length - 3) + ' more' : ''}`;
+                    }
+                    alert(message);
+                    loadFiles(); // Refresh the list
+                } else {
+                    alert('❌ Error during bulk deletion: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Network error occurred during bulk deletion');
+            })
+            .finally(() => {
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = false;
+            });
+        }
+        
+        function deleteOrphanedFiles() {
+            const orphanedCount = allFiles.filter(f => f.orphaned).length;
+            
+            if (orphanedCount === 0) {
+                alert('ℹ️ No orphaned files found.\n\nAll files are properly linked to facial evaluation records.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete all ${orphanedCount} orphaned files?\n\nOrphaned files are images that are no longer associated with any facial evaluation record in the database.\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            const deleteBtn = document.getElementById('delete-orphaned-btn');
+            const originalText = deleteBtn.textContent;
+            deleteBtn.textContent = '⏳ Cleaning...';
+            deleteBtn.disabled = true;
+            
+            fetch('/admin/bulk-delete-facial-evaluation-files', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orphaned_only: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✅ Orphaned files cleanup completed!\n\nDeleted ${data.deleted_count} orphaned files.\n\nStorage has been cleaned up successfully.`);
+                    loadFiles(); // Refresh the list
+                } else {
+                    alert('❌ Error during cleanup: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Network error occurred during cleanup');
+            })
+            .finally(() => {
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = false;
+            });
+        }
+        
+        // Auto-refresh page every 30 seconds to check for new evaluations
+        setInterval(function() {
+            window.location.reload();
+        }, 30000);
+        
+        // Add visual indicators for urgent evaluations (older than 24 hours)
+        document.addEventListener('DOMContentLoaded', function() {
+            var evaluationItems = document.querySelectorAll('.evaluation-item');
+            evaluationItems.forEach(function(item) {
+                var timeAgo = item.querySelector('.time-ago');
+                if (timeAgo) {
+                    var text = timeAgo.textContent;
+                    var match = text.match(/\d+\.?\d*/);
+                    if (match) {
+                        var hours = parseFloat(match[0]);
+                        if (hours > 24) {
+                            item.style.borderLeft = '4px solid #e74c3c';
+                            item.style.backgroundColor = '#fdf2f2';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

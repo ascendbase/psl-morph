@@ -1,7 +1,5 @@
-# Railway Dockerfile for Flask App (Serverless Mode)
 FROM python:3.10-slim
 
-# Set working directory
 WORKDIR /app
 
 # Install system dependencies
@@ -22,13 +20,8 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p uploads outputs instance
 
-# Set environment variables
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
-ENV PYTHONPATH=/app
-
 # Expose port
-EXPOSE 5000
+EXPOSE 8080
 
 # Run the application
 CMD ["python", "app.py"]

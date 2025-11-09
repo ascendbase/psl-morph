@@ -1,0 +1,128 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "real-dream-15.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "2": {
+    "inputs": {
+      "model": ["1", 0],
+      "clip": ["1", 1],
+      "lora_name": "chad_sd1.5.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 0.85
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "3": {
+    "inputs": {
+      "text": "chad, male model, enhanced eyes, defined eyebrows, attractive eye area, masculine features",
+      "clip": ["2", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": "(worst quality, low quality:1.4), (bad anatomy), text, error, missing fingers, extra digit, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, deformed face, deformed eyes, asymmetric eyes",
+      "clip": ["2", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative)"
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "example.jpg",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Original Image"
+    }
+  },
+  "6": {
+    "inputs": {
+      "image": ["5", 0],
+      "face_parts": "eyes,eyebrows",
+      "confidence": 0.5,
+      "expand": 10,
+      "blur": 5
+    },
+    "class_type": "FaceSegmentation",
+    "_meta": {
+      "title": "Eyes + Eyebrows Segmentation"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": ["9", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "model": ["2", 0],
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "latent_image": ["10", 0],
+      "seed": 156680208700286,
+      "steps": 20,
+      "cfg": 8.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 0.5
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "10": {
+    "inputs": {
+      "pixels": ["5", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "11": {
+    "inputs": {
+      "destination": ["5", 0],
+      "source": ["8", 0],
+      "x": 0,
+      "y": 0,
+      "resize_source": false
+    },
+    "class_type": "ImageComposite",
+    "_meta": {
+      "title": "Composite Eyes Result"
+    }
+  },
+  "12": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_Eyes",
+      "images": ["11", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Eyes Result"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "placeholder_original.jpg",
+      "upload": "image"
+    }
+  },
+  "2": {
+    "class_type": "LoadImage", 
+    "inputs": {
+      "image": "placeholder_source.jpg",
+      "upload": "image"
+    }
+  },
+  "3": {
+    "class_type": "ReActorSetWeight",
+    "inputs": {
+      "input_image": ["1", 0],
+      "source_image": ["2", 0],
+      "faceswap_weight": "50%"
+    }
+  },
+  "4": {
+    "class_type": "ReActorFaceSwap",
+    "inputs": {
+      "input_image": ["3", 0],
+      "face_model": ["3", 1],
+      "enabled": true,
+      "swap_model": "inswapper_128.onnx",
+      "facedetection": "retinaface_resnet50",
+      "face_restore_model": "GFPGANv1.3.pth",
+      "face_restore_visibility": 0.27,
+      "codeformer_weight": 0.25,
+      "detect_gender_input": "no",
+      "detect_gender_source": "no",
+      "input_faces_index": "0",
+      "source_faces_index": "0",
+      "console_log_level": 1
+    }
+  },
+  "5": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": ["4", 0],
+      "filename_prefix": "face_swap_result"
+    }
+  }
+}
