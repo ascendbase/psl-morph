@@ -1,45 +1,51 @@
-# RunPod ComfyUI with Impact Pack Pre-installed
-# Optimized for Morph App Workflows
+# Minimal ComfyUI Dockerfile - Space Optimized for GitHub Actions
+FROM nvidia/cuda:11.8-devel-ubuntu22.04
 
-FROM runpod/pytorch:2.0.1-py3.10-cuda11.8.0-devel-ubuntu22.04
-
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install minimal dependencies first
 RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
     git \
     wget \
     curl \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone ComfyUI
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Clone and install ComfyUI
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI
 
-# Install ComfyUI dependencies
 WORKDIR /app/ComfyUI
+RUN pip install --no-cache-dir --upgrade pip
+
+# Install basic ComfyUI requirements only
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install custom nodes in correct order
+# Install only essential PyTorch for CUDA 11.8
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Create minimal custom nodes directory structure
 WORKDIR /app/ComfyUI/custom_nodes
 
-# 1. Install ComfyUI-Impact-Subpack (dependency first)
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack.git && \
-    cd ComfyUI-Impact-Subpack && \
-    pip install --no-cache-dir -r requirements.txt && \
-    cd ..
+# Install just the essential packages manually to save space
+RUN pip install --no-cache-dir opencv-python pillow numpy scipy scikit-image tqdm
 
-# 2. Install ComfyUI-Impact-Pack (main package)
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git && \
-    cd ComfyUI-Impact-Pack && \
-    pip install --no-cache-dir -r requirements.txt && \
-    cd ..
+# Manual download of SAM model
+WORKDIR /app/ComfyUI/models
+RUN mkdir -p sams && \
+    wget -q --show-progress -O sams/sam_vit_b_01ec64.pth \
+    https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+
+# Create startup script
+WORKDIR /app/ComfyUI
+RUN echo '#!/bin/bash\nPORT=${PORT:-8188}\necho "Starting ComfyUI on port $PORT"\npython main.py --listen 0.0.0.0 --port $PORT\n' > /app/start.sh && \
+    chmod +x /app/start.sh
+
+EXPOSE 8188
+CMD ["/app/start.sh"]
 
 # Create model directories
 RUN mkdir -p /app/ComfyUI/models/checkpoints && \
